@@ -1,9 +1,12 @@
 const express = require('express');
+const app = express();
 const router = express.Router();
 const Docker = require('dockerode');
+const Dockerode = require('simple-dockerode');
 const stream = require('stream');
 
 const docker = new Docker();
+const dockerExec = new Dockerode({socketPath: '/var/run/docker.sock'});
 const returnContainersRouter = (io) => {
     /* GET containers. */
     router.get('/', (req, res, next) => {
@@ -107,7 +110,7 @@ const returnContainersRouter = (io) => {
                 AttachStdout: true,
                 AttachStderr: true,
                 Tty: true,
-                //Cmd: ['/bin/sh'],
+                Cmd: ['touch', "/tmp/nuevo.txt"],
                 OpenStdin: false,
                 StdinOnce: false,
                 ...options,
@@ -118,18 +121,82 @@ const returnContainersRouter = (io) => {
                 res.redirect('/containers');
             });
         }
-
     });
+
+    const fs = require("fs");
+ 
+    app.use(express.static(__dirname + "/public"));
+    app.use("data", express.static(__dirname+"/data"));
+    
+    files = fs.readdirSync(__dirname+"/data");
+
+    const path = require('path');
+    console.log("\Filenames with the .js extension:");
+    console.log("\Dirname: " + __dirname);
+    files.forEach(file => {
+    if (path.extname(file) == ".js")
+        console.log(file);
+    })
+
+    const quizFileDir = fs
+      .readdirSync(__dirname+"/data")
+      .filter((name) => name.endsWith(".js"));
+    
+    const quizzes = [];
+    for (const file of quizFileDir) {
+        const quizFile = require(`./data/${file}`);
+        quizzes.push({
+            title: quizFile.quizData.title,
+            slug: file.replace(".js", "")
+        });
+    }
 
     router.get('/console/:id', (req, res, next) => {
-        res.render('terminal');
+        contenido = fs.readFileSync(__dirname+'/data/' + req.query.name + ".js", 'utf8', function(err, data){
+            // Display the file content
+            //console.log(data);
+        });
+        //console.log(contenido);
+        res.render('terminal', { jsonObject: contenido, quizzes: quizzes, name: quizzes[0].slug, quizzes: quizzes[0], query: req.query.name, contenido: quizzes, title: 'Hey', message: 'Hello there!'});
     });
+
 
     router.get('/logs/:id', (req, res, next) => {
         res.render('logs');
     });
-
+    var inspeccio = "";
     io.on('connection', (socket) => {
+      
+        socket.on('encert', function (data) {  
+            //console.log(data);
+            //console.log(data.idContainer);
+            const myContainer = dockerExec.getContainer(data.idContainer);
+
+            myContainer.exec(['echo', 'goodbye world'], {stdout: true}, (err, results) => {
+                console.log(results.stdout);
+                // goodbye world
+              
+                //console.log(exec);
+                //socket.emit('returnDrawerResponse', inspeccio);
+            });
+            myContainer.exec(['/bin/bash', '-c','/tmp/hola.sh'], {stdout: true}, (err, results) => {
+                console.log(results.stdout);
+                socket.emit('returnDrawerResponse', results.stdout);
+            });
+        });
+
+        socket.on('checkMC', function (data) { 
+            socket.emit('returncheckMCResponse', "Washington D.C.");
+        });
+
+        socket.on('check', function (data) { 
+            const myContainer = dockerExec.getContainer(data.idContainer);
+            myContainer.exec(['/bin/bash', '-c', data.fileCheck], {stdout: true}, (err, results) => {
+                console.log(results.stdout);
+                socket.emit('returnDrawerResponse', results.stdout);
+            });
+        });
+
         socket.on('exec', (id, w, h) => {
             const container = docker.getContainer(id);
             let cmd = {
