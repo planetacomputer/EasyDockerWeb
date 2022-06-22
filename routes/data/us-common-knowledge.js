@@ -1,5 +1,6 @@
 const quizData = {
-    title: "US Common Knowledge"
+    title: "US Common Knowledge",
+    slug: "us-common-knowledge"
   };
   
   const questions = [
@@ -60,4 +61,4 @@ const quizData = {
     }
   ];
   
-  
+  module.exports = { quizData, questions };  

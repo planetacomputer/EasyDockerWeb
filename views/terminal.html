@@ -174,7 +174,10 @@ input[type="text"] {
           <button class="next-btn hide">Next</button>
           <span id="result" class="result"></span>
         </div>
-        
+        <form method="post" id="changeQuote">
+    <input type="text" placeholder="Set quote of the day" name="quote"/>
+    <input type="submit" value="Save">
+</form>
         <a href="/laboratoris">Volver a laboratorios<h1><%= title %><%= message %></h1><p>ds<%= contenido %></p><p>query name: <%= query %></p></a>
         <%= jsonObject %>
       </div>

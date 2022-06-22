@@ -4,9 +4,11 @@ const router = express.Router();
 const Docker = require('dockerode');
 const Dockerode = require('simple-dockerode');
 const stream = require('stream');
+const { stringify } = require('querystring');
 
 const docker = new Docker();
 const dockerExec = new Dockerode({socketPath: '/var/run/docker.sock'});
+let contenido = "";
 const returnContainersRouter = (io) => {
     /* GET containers. */
     router.get('/', (req, res, next) => {
@@ -160,10 +162,31 @@ const returnContainersRouter = (io) => {
         res.render('terminal', { jsonObject: contenido, quizzes: quizzes, name: quizzes[0].slug, quizzes: quizzes[0], query: req.query.name, contenido: quizzes, title: 'Hey', message: 'Hello there!'});
     });
 
-
     router.get('/logs/:id', (req, res, next) => {
         res.render('logs');
     });
+
+    //parsegem del fitxer json la solucio
+    router.post('/checkAnswer/ajax', (req, res, next) =>{
+        id = req.body.id;
+        slug = req.body.slug;
+        console.log("slug: " + slug);
+        let jsonObject = fs.readFileSync(__dirname+`/data/` + slug + `.json`);
+        let quizJson = JSON.parse(jsonObject);
+        questions = quizJson.questions[id-1];
+        for (var key in questions.answers) {
+            if (questions.answers.hasOwnProperty(key)) {
+                console.log(key + " -> " + questions.answers[key].text);
+                console.log(key + " -> " + questions.answers[key].correct);
+                if(questions.answers[key].correct == true){
+                    var1 = questions.answers[key].text;
+                    res.json({var1});
+                } 
+            }
+        }
+        //res.json({var1});
+    });
+
     var inspeccio = "";
     io.on('connection', (socket) => {
       
@@ -171,13 +194,8 @@ const returnContainersRouter = (io) => {
             //console.log(data);
             //console.log(data.idContainer);
             const myContainer = dockerExec.getContainer(data.idContainer);
-
             myContainer.exec(['echo', 'goodbye world'], {stdout: true}, (err, results) => {
                 console.log(results.stdout);
-                // goodbye world
-              
-                //console.log(exec);
-                //socket.emit('returnDrawerResponse', inspeccio);
             });
             myContainer.exec(['/bin/bash', '-c','/tmp/hola.sh'], {stdout: true}, (err, results) => {
                 console.log(results.stdout);

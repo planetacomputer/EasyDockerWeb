@@ -28,6 +28,7 @@ nextBtn.addEventListener("click", () => {
 });
 
 function startQuiz() {
+  console.log("start Quiz");
   startBtn.classList.add("hide");
   nextBtn.classList.remove("hide");
   questionElement.classList.remove("hide");
@@ -56,6 +57,7 @@ function loadQuestion(questionNum) {
     questionElement.innerHTML = questions[questionNum].id + " " + questions[questionNum].text;
     // Question types
     var btnGrid = document.createElement("div");
+    btnGrid.setAttribute("id", questions[questionNum].id);
     if (questions[questionNum].type === "mc") {
       answersContainer.appendChild(btnGrid);
       questions[questionNum].answers.forEach((answer) => {
@@ -105,49 +107,40 @@ function loadQuestion(questionNum) {
     correctCount.innerHTML = `Correct: ${correct}`;
   }
 }
+
 var id = window.location.pathname.split('/')[3];
 function checkAnswer() {
   // Check different types
-
+  let solucio = "";
   switch (answersContainer.dataset.type) {
     case "mc":
-      var solucio = "";
-      Array.from(answersContainer.children[0].children).forEach((button) => {
-
-        socket.emit('checkMC', { fileCheck: '/tmp/check.sh', idContainer: id }, (response) => {
-          console.log(response);
-        });
-        socket.on('returncheckMCResponse', function(message) {
-          console.log("entramos");
-          console.log(message);
-        });
-        if (
-          //button.dataset.correct === "true" &&
-          button.dataset.clicked === "true"
-        ) {
-          //console.log(button.textContent)
-        }
-        if (button.dataset.correct === "true") {
-          button.classList.add("correct");
-          if (
-            //button.dataset.correct === "true" &&
-            button.dataset.clicked === "true"
-          ) {
-            console.log("olee");
-            //socket.emit('checkMC', { fileCheck: '/tmp/hola.sh', idContainer: id }, (response) => {
-              //   //console.log(response);
-              // });
-            correct++; 
-            // 
-            // socket.on('returnDrawerResponse', function(message) {
-            //   console.log(message);
-            // });
-          }
-        } else {
-          button.classList.add("wrong");
-        }
+      console.log(answersContainer.children[0].id);
+      console.log(quizData.slug);
+      $.ajax({
+        type: 'post',
+        url: '/containers/checkAnswer/ajax',
+        data: {slug: quizData.slug, id: answersContainer.children[0].id },
+        dataType: 'text',
+        async: false
+      })
+      .done(function(data){
+          solucio = JSON.parse(data).var1;
       });
-      //currentQuestion++;
+      console.log(quizData.slug.replace(".js", ""));
+      
+      Array.from(answersContainer.children[0].children).forEach((button) => {
+          console.log(button.textContent)
+          if (button.textContent === solucio) {
+            console.log(solucio);
+            button.classList.add("correct");
+            if (button.dataset.clicked === "true"){
+              console.log("es la correcta");
+              correct++;
+            }
+          } else {
+            button.classList.add("wrong");
+          }
+      });
       break;
 
     case "txt":
