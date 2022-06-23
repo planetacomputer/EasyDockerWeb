@@ -5,10 +5,10 @@
     },
     "questions" : [
         {
-            "id": 1,
-            "text": "What is the capital of the United States?",
+           "id": 1,
+           "text": "What is the capital of the United States?",
            "type": "mc",
-            "answers": [
+           "answers": [
               { "text": "New York City", "correct": false },
               { "text": "Philadelphia", "correct": false },
               { "text": "Washington D.C.", "correct": true },
@@ -18,7 +18,8 @@
         {
           "id": 2,
           "text": "Crea el fichero /tmp/pepe.txt",
-          "type": "check"
+          "type": "check",
+          "pre": true
         },
         {
             "id": 3,
@@ -59,7 +60,5 @@
               { "text": "Berenjena", "correct": true }
             ]
           }
-
-
     ]
 }

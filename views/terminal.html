@@ -152,7 +152,22 @@ input[type="text"] {
   }
 </style>
 
-<script src="/<%= query %>.js"></script>
+<script >
+
+  function decodeHtml(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+}
+  var a = "33";
+  var questions2 = decodeHtml("<%= JSON.stringify(questions) %>");  
+  var quizData2 = decodeHtml("<%= JSON.stringify(quizData) %>");
+  console.log(decodeHtml(questions));
+  var questions = JSON.parse(questions2);
+  var quizData = JSON.parse(quizData2);
+  //alert(test2);
+  </script>
+
 </head>
 <body class="container">
 <div class="row row-no-gutters">
@@ -174,12 +189,6 @@ input[type="text"] {
           <button class="next-btn hide">Next</button>
           <span id="result" class="result"></span>
         </div>
-        <form method="post" id="changeQuote">
-    <input type="text" placeholder="Set quote of the day" name="quote"/>
-    <input type="submit" value="Save">
-</form>
-        <a href="/laboratoris">Volver a laboratorios<h1><%= title %><%= message %></h1><p>ds<%= contenido %></p><p>query name: <%= query %></p></a>
-        <%= jsonObject %>
       </div>
     <div id="terminal" class="col-sm-10"></div>
 </div>

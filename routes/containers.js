@@ -129,37 +129,15 @@ const returnContainersRouter = (io) => {
  
     app.use(express.static(__dirname + "/public"));
     app.use("data", express.static(__dirname+"/data"));
-    
-    files = fs.readdirSync(__dirname+"/data");
-
-    const path = require('path');
-    console.log("\Filenames with the .js extension:");
-    console.log("\Dirname: " + __dirname);
-    files.forEach(file => {
-    if (path.extname(file) == ".js")
-        console.log(file);
-    })
-
-    const quizFileDir = fs
-      .readdirSync(__dirname+"/data")
-      .filter((name) => name.endsWith(".js"));
-    
-    const quizzes = [];
-    for (const file of quizFileDir) {
-        const quizFile = require(`./data/${file}`);
-        quizzes.push({
-            title: quizFile.quizData.title,
-            slug: file.replace(".js", "")
-        });
-    }
 
     router.get('/console/:id', (req, res, next) => {
-        contenido = fs.readFileSync(__dirname+'/data/' + req.query.name + ".js", 'utf8', function(err, data){
+        contenido = fs.readFileSync(__dirname+'/data/' + req.query.name + ".json", 'utf8', function(err, data){
             // Display the file content
             //console.log(data);
         });
-        //console.log(contenido);
-        res.render('terminal', { jsonObject: contenido, quizzes: quizzes, name: quizzes[0].slug, quizzes: quizzes[0], query: req.query.name, contenido: quizzes, title: 'Hey', message: 'Hello there!'});
+        jsonObject = JSON.parse(contenido);
+        console.log(jsonObject.questions);
+        res.render('terminal', { quizData: jsonObject.quizData, questions:jsonObject.questions});
     });
 
     router.get('/logs/:id', (req, res, next) => {
@@ -184,11 +162,15 @@ const returnContainersRouter = (io) => {
                 } 
             }
         }
-        //res.json({var1});
     });
 
-    var inspeccio = "";
     io.on('connection', (socket) => {
+
+        socket.on('preQuestion', function (data) { 
+        });
+
+        socket.on('postQuestion', function (data) { 
+        });
       
         socket.on('encert', function (data) {  
             //console.log(data);
@@ -203,11 +185,8 @@ const returnContainersRouter = (io) => {
             });
         });
 
-        socket.on('checkMC', function (data) { 
-            socket.emit('returncheckMCResponse', "Washington D.C.");
-        });
-
         socket.on('check', function (data) { 
+            console.log(data.currentQuestion);
             const myContainer = dockerExec.getContainer(data.idContainer);
             myContainer.exec(['/bin/bash', '-c', data.fileCheck], {stdout: true}, (err, results) => {
                 console.log(results.stdout);

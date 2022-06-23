@@ -16,7 +16,6 @@ var socket = io.connect(host);
 window.addEventListener("load", () => {
   quizTitleElement.innerHTML = quizData.title;
   numPreguntas.innerHTML = questions.length;
-
 });
 
 startBtn.addEventListener("click", () => {
@@ -35,9 +34,11 @@ function startQuiz() {
   answersContainer.classList.remove("hide");
   correctCount.classList.remove("hide");
   loadQuestion(currentQuestion);
+  console.log(questions);
 }
 
 function loadQuestion(questionNum) {
+  console.log("carrega quest"+ questionNum);
   numPreguntas.innerHTML = correct + "/" + questions.length;
   result.innerHTML = "";
   if (currentQuestion === questions.length) {
@@ -161,8 +162,10 @@ function checkAnswer() {
       break;
     
     case "check":
-      socket.emit('check', { fileCheck: '/tmp/check.sh', idContainer: id }, (response) => {
+      socket.emit('check', { fileCheck: '/tmp/check.sh', currentQuestion: currentQuestion, idContainer: id }, (response) => {
         console.log(response);
+        socket.removeAllListeners();
+        socket.disconnect();
       });
       socket.on('returnDrawerResponse', function(message) {
         console.log("entramos");
