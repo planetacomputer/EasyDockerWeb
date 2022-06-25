@@ -126,6 +126,7 @@ const returnContainersRouter = (io) => {
     });
 
     const fs = require("fs");
+    let jsonObject = null;
  
     app.use(express.static(__dirname + "/public"));
     app.use("data", express.static(__dirname+"/data"));
@@ -166,7 +167,29 @@ const returnContainersRouter = (io) => {
 
     io.on('connection', (socket) => {
 
-        socket.on('preQuestion', function (data) { 
+        socket.on('execQuiz', function (data) {
+            const myContainer = dockerExec.getContainer(data.idContainer);
+            let comanda = "";
+            if(data.tipus == "pre" && jsonObject.questions[data.currentQuestion].pre !== undefined){
+                console.log(jsonObject.questions[data.currentQuestion].pre);
+                comanda = jsonObject.questions[data.currentQuestion].pre;
+            }
+            else if (data.tipus == "check" && jsonObject.questions[data.currentQuestion].check !== undefined){
+                console.log("check");
+                console.log(jsonObject.questions[data.currentQuestion].check);
+                comanda = jsonObject.questions[data.currentQuestion].check;
+                console.log(comanda);
+            }
+            else if (data.tipus == "post" && jsonObject.questions[data.currentQuestion].post !== undefined){
+                console.log("post");
+                console.log(jsonObject.questions[data.currentQuestion].post);
+                comanda = jsonObject.questions[data.currentQuestion].post;
+                console.log(comanda);
+            }
+            myContainer.exec(['/bin/bash', '-c', comanda], {stdout: true}, (err, results) => {
+                console.log(results.stdout);
+                socket.emit('returnDrawerResponse', results.stdout);
+            });
         });
 
         socket.on('postQuestion', function (data) { 
@@ -185,14 +208,15 @@ const returnContainersRouter = (io) => {
             });
         });
 
-        socket.on('check', function (data) { 
-            console.log(data.currentQuestion);
-            const myContainer = dockerExec.getContainer(data.idContainer);
-            myContainer.exec(['/bin/bash', '-c', data.fileCheck], {stdout: true}, (err, results) => {
-                console.log(results.stdout);
-                socket.emit('returnDrawerResponse', results.stdout);
-            });
-        });
+        // socket.on('check', function (data) { 
+        //     console.log(data.currentQuestion);
+        //     //console.log(questions[data.currentQuestion].pre);
+        //     const myContainer = dockerExec.getContainer(data.idContainer);
+        //     myContainer.exec(['/bin/bash', '-c', data.fileCheck], {stdout: true}, (err, results) => {
+        //         console.log(results.stdout);
+        //         socket.emit('returnDrawerResponse', results.stdout);
+        //     });
+        // });
 
         socket.on('exec', (id, w, h) => {
             const container = docker.getContainer(id);

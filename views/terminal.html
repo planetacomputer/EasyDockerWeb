@@ -138,6 +138,30 @@ input[type="text"] {
   background: #ff3e51 !important;
 }
 
+#ariadnaThread{
+  clear:both; 
+  display: flex;
+  flex-direction: row; 
+  justify-content: flex-start; 
+  align-items: stretch; 
+  flex-wrap: wrap; 
+  align-content: flex-start;
+}
+
+div.item {
+    position: relative;
+    padding: 1px 6px;
+    font-family: 'Sigmar One', cursive;
+    font-size: 18px;
+    color: white;
+    box-sizing: border-box;
+    margin: 3px;
+}
+
+div.itemSelected {
+  border: 2px solid #333;
+}
+
 @media screen and (max-width: 894px) {
   .container {
     width: 90%;
@@ -150,6 +174,8 @@ input[type="text"] {
   .correct-count {
     float: none;
   }
+
+}
 </style>
 
 <script >
@@ -174,6 +200,7 @@ input[type="text"] {
     <div id="quiz" class="col-sm-2">
         <h1 class="quiz-title">Quiz Title</h1>
         <p class="correct-count hide">Correct:</p>
+        <div id="ariadnaThread"></div>
         <p class="question hide">Question</p>
         <div class="q-container hide">
           <div class="btn-grid">

@@ -26,6 +26,7 @@ nextBtn.addEventListener("click", () => {
   loadQuestion(++currentQuestion);
 });
 
+let arrEncerts = new Array(questions.length);
 function startQuiz() {
   console.log("start Quiz");
   startBtn.classList.add("hide");
@@ -33,6 +34,9 @@ function startQuiz() {
   questionElement.classList.remove("hide");
   answersContainer.classList.remove("hide");
   correctCount.classList.remove("hide");
+  for(i = 0; i < questions.length; i++) {
+    $('#ariadnaThread').append('<div style="background-color: rgb(231, 126, 35);" class="item" id="item-'+ i +'" >' + (i+1) +  '</div>');
+  }
   loadQuestion(currentQuestion);
   console.log(questions);
 }
@@ -47,8 +51,10 @@ function loadQuestion(questionNum) {
     questionElement.classList.add("hide");
     answersContainer.classList.add("hide");
     startBtn.innerHTML = "Restart";
-    correctCount.innerHTML = `Correct: ${correct}/${questions.length}`;
     correct = 0;
+    correctCount.innerHTML = `Correct: ${correct}/${questions.length}`;
+    $('.item').remove();
+    arrEncerts = null;
     currentQuestion = 0;
   } else {
     while (answersContainer.firstChild) {
@@ -107,6 +113,28 @@ function loadQuestion(questionNum) {
 
     correctCount.innerHTML = `Correct: ${correct}`;
   }
+  console.log(questionNum);
+  for(i = 0; i < questions.length; i++) {
+    document.getElementById("item-" + i).classList.remove("itemSelected");
+    if (arrEncerts[i] == 1){
+      document.getElementById("item-" + i).style.backgroundColor = "green";
+    }
+    else if (arrEncerts[i] == 0){
+      document.getElementById("item-" + i).style.backgroundColor = "red";
+    }
+  }
+  console.log(questions[questionNum].pre);
+  if(questions[questionNum].pre !== undefined){
+    console.log("Exec pre");
+    socket.emit('execQuiz', {tipus: "pre", currentQuestion: currentQuestion, idContainer: id }, (response) => {
+      console.log(response);
+      socket.removeAllListeners();
+      socket.disconnect();
+    });
+
+  }
+  document.getElementById("item-" + questionNum).classList.add("itemSelected");
+  
 }
 
 var id = window.location.pathname.split('/')[3];
@@ -136,12 +164,20 @@ function checkAnswer() {
             button.classList.add("correct");
             if (button.dataset.clicked === "true"){
               console.log("es la correcta");
+              document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
               correct++;
+              arrEncerts[(answersContainer.children[0].id)-1] = 1;
+            }
+            else{
+              arrEncerts[(answersContainer.children[0].id)-1] = 0;
+              document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "red";
             }
           } else {
             button.classList.add("wrong");
+            //document.getElementById("item-" + (answersContainer.children[0].id)-1).style.backgroundColor = "red";
           }
       });
+      numPreguntas.innerHTML = correct + "/" + questions.length;
       break;
 
     case "txt":
@@ -155,14 +191,16 @@ function checkAnswer() {
       if (foundValues) {
         qInputElement.classList.remove("wrong");
         qInputElement.classList.add("correct");
+        arrEncerts[(answersContainer.children[0].id)-1] = 1;
         correct++;
       } else {
         qInputElement.classList.add("wrong");
+        arrEncerts[(answersContainer.children[0].id)-1] = 0;
       }
       break;
     
     case "check":
-      socket.emit('check', { fileCheck: '/tmp/check.sh', currentQuestion: currentQuestion, idContainer: id }, (response) => {
+      socket.emit('execQuiz', { tipus: 'check', currentQuestion: currentQuestion, idContainer: id }, (response) => {
         console.log(response);
         socket.removeAllListeners();
         socket.disconnect();
@@ -177,12 +215,14 @@ function checkAnswer() {
           //result.classList.remove("hide");
           //result.classList.remove("wrong");
           result.innerHTML = "correct";
+          arrEncerts[(answersContainer.children[0].id)-1] = 1;
         }
         else{
           console.log("oleaerrro")
           //result.classList.remove("correct");
           //result.classList.remove("hide");
           result.innerHTML = "wrong";
+          arrEncerts[(answersContainer.children[0].id)-1] = 0;
         }
       });
       //currentQuestion++;

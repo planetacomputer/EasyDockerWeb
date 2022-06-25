@@ -1,6 +1,6 @@
 {
     "quizData": {
-        "title": "US Common Knowledge",
+        "title": "US Common Knowledgea",
         "slug": "us-common-knowledge"
     },
     "questions" : [
@@ -8,6 +8,7 @@
            "id": 1,
            "text": "What is the capital of the United States?",
            "type": "mc",
+           "pre": "touch /tmp/questio1.txt",
            "answers": [
               { "text": "New York City", "correct": false },
               { "text": "Philadelphia", "correct": false },
@@ -19,7 +20,9 @@
           "id": 2,
           "text": "Crea el fichero /tmp/pepe.txt",
           "type": "check",
-          "pre": true
+          "pre": "touch /tmp/questio2.txt",
+          "check": "if [ -f /tmp/pepe.txt ]; then echo 0; else echo 1; fi;",
+          "post": "rm /tmp/pepe.txt /tmp/questio2.txt"
         },
         {
             "id": 3,
@@ -59,6 +62,25 @@
               { "text": "Cebolla", "correct": false },
               { "text": "Berenjena", "correct": true }
             ]
+          }
+          ,
+          {
+            "id": 7,
+            "text": "Cual de estas distribuciones no deriva de Debian?",
+            "type": "txt",
+            "answers": [
+              { "text": "CentOS", "correct": true },
+              { "text": "Ubuntu", "correct": false },
+              { "text": "Mint", "correct": false },
+              { "text": "Lubuntu", "correct": false  }
+            ]
+          },
+          {
+              "id": 8,
+              "text": "Quin usuari s'acaba de crear? (comença per la lletra j)",
+              "type": "txt",
+              "pre": "adduser --disabled-password --gecos '' jose",
+              "answers": ["jose"]
           }
     ]
 }
