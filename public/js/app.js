@@ -15,6 +15,9 @@ $(document).ready(function () {
     if (codePageCourante == 'logs') {
         logs();
     }
+    if(codePageCourante == 'laboratoris'){
+        
+    }
     if (codePageCourante == 'images') {
         $('#pullImage').on('click', function () {
             pullIamges();

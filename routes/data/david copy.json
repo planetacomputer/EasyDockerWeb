@@ -1,8 +1,9 @@
 {
     "quizData": {
-        "title": "US Common Knowledaxx",
-        "slug": "us-common-knowledge",
-        "image": "mumshad_openssh:latest"
+        "title": "Laboratori Usuaris Linux",
+        "slug": "david-copy",
+        "image": "node:9-alpine",
+        "sha256": "a27fd8080b517143cbbbab9dfb7c8571c40d67d534bbdee55bd6c473f432b177"
     },
     "questions" : [
         {

@@ -134,11 +134,15 @@ const returnContainersRouter = (io) => {
     router.get('/console/:id', (req, res, next) => {
         contenido = fs.readFileSync(__dirname+'/data/' + req.query.name + ".json", 'utf8', function(err, data){
             // Display the file content
-            //console.log(data);
+            console.log(data);
         });
         jsonObject = JSON.parse(contenido);
         console.log(jsonObject.questions);
         res.render('terminal', { quizData: jsonObject.quizData, questions:jsonObject.questions});
+    });
+
+    router.get('/console2/:id', (req, res, next) => {
+        res.render('terminal2');
     });
 
     router.get('/logs/:id', (req, res, next) => {
@@ -268,7 +272,6 @@ const returnContainersRouter = (io) => {
 
         socket.on('attach', (id, w, h) => {
             const container = docker.getContainer(id);
-
             const logStream = new stream.PassThrough();
             logStream.on('data', (chunk) => {
                 socket.emit('show', chunk.toString('utf8'));

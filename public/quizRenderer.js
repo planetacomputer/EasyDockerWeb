@@ -54,7 +54,7 @@ function loadQuestion(questionNum) {
     correct = 0;
     correctCount.innerHTML = `Correct: ${correct}/${questions.length}`;
     $('.item').remove();
-    arrEncerts = null;
+    arrEncerts = new Array(questions.length);
     currentQuestion = 0;
   } else {
     while (answersContainer.firstChild) {
@@ -77,6 +77,8 @@ function loadQuestion(questionNum) {
             (element) => (element.disabled = true)
           );
           e.target.dataset.clicked = "true";
+          console.log("clicked onn it");
+          e.target.style.backgroundColor = "blue";
           checkAnswer();
         });
         btnGrid.appendChild(answerElement);
@@ -103,42 +105,41 @@ function loadQuestion(questionNum) {
       checkBtn.innerHTML = "Check";
       checkBtn.classList.add("check-btn");
       checkBtn.addEventListener("click", (e) => {
-        checkAnswer();
+        checkAnswer(e);
       });
+
       answersContainer.appendChild(checkBtn);
       answersContainer.dataset.type = "check";
     }
-
-    //End types
-
     correctCount.innerHTML = `Correct: ${correct}`;
   }
-  console.log(questionNum);
-  for(i = 0; i < questions.length; i++) {
-    document.getElementById("item-" + i).classList.remove("itemSelected");
-    if (arrEncerts[i] == 1){
-      document.getElementById("item-" + i).style.backgroundColor = "green";
+
+  if (currentQuestion != 0) {
+    for(i = 0; i < questions.length; i++) {
+      document.getElementById("item-" + i).classList.remove("itemSelected");
+      if (arrEncerts[i] == 1){
+        document.getElementById("item-" + i).style.backgroundColor = "green";
+      }
+      else if (arrEncerts[i] == 0){
+        document.getElementById("item-" + i).style.backgroundColor = "red";
+      }
     }
-    else if (arrEncerts[i] == 0){
-      document.getElementById("item-" + i).style.backgroundColor = "red";
-    }
-  }
-  console.log(questions[questionNum].pre);
+
+    console.log(questions[questionNum].pre);
   if(questions[questionNum].pre !== undefined){
-    console.log("Exec pre");
     socket.emit('execQuiz', {tipus: "pre", currentQuestion: currentQuestion, idContainer: id }, (response) => {
-      console.log(response);
       socket.removeAllListeners();
       socket.disconnect();
     });
-
   }
   document.getElementById("item-" + questionNum).classList.add("itemSelected");
-  
+
+  }
 }
 
+
 var id = window.location.pathname.split('/')[3];
-function checkAnswer() {
+function checkAnswer(e) {
   // Check different types
   let solucio = "";
   switch (answersContainer.dataset.type) {
@@ -158,12 +159,12 @@ function checkAnswer() {
       console.log(quizData.slug.replace(".js", ""));
       
       Array.from(answersContainer.children[0].children).forEach((button) => {
-          console.log(button.textContent)
-          if (button.textContent === solucio) {
-            console.log(solucio);
+        if (button.dataset.clicked){
+          button.style.border = "3px solid gray";
+        }  
+        if (button.textContent === solucio) {
             button.classList.add("correct");
             if (button.dataset.clicked === "true"){
-              console.log("es la correcta");
               document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
               correct++;
               arrEncerts[(answersContainer.children[0].id)-1] = 1;
@@ -176,62 +177,54 @@ function checkAnswer() {
             button.classList.add("wrong");
             //document.getElementById("item-" + (answersContainer.children[0].id)-1).style.backgroundColor = "red";
           }
-      });
+
+        });
       numPreguntas.innerHTML = correct + "/" + questions.length;
       break;
 
     case "txt":
-      console.log("paso por checkanswer txt");
       var qInputElement = answersContainer.children[1];
-      console.log(qInputElement.value);
       var foundValues = questions[currentQuestion].answers.find(
         (answer) => answer.toUpperCase() === qInputElement.value.toUpperCase()
       );
       console.log("foundValue"+foundValues);
       if (foundValues) {
-        qInputElement.classList.remove("wrong");
         qInputElement.classList.add("correct");
         arrEncerts[(answersContainer.children[0].id)-1] = 1;
         correct++;
+        document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
       } else {
         qInputElement.classList.add("wrong");
         arrEncerts[(answersContainer.children[0].id)-1] = 0;
+        document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "red";
       }
       break;
     
     case "check":
       socket.emit('execQuiz', { tipus: 'check', currentQuestion: currentQuestion, idContainer: id }, (response) => {
-        console.log(response);
         socket.removeAllListeners();
         socket.disconnect();
       });
       socket.on('returnDrawerResponse', function(message) {
-        console.log("entramos");
-        console.log("message" + message);
-        console.log(correct);
         if (message.trim() === "0"){
           correct++;
-          console.log("oleacierto")
-          //result.classList.remove("hide");
-          //result.classList.remove("wrong");
-          result.innerHTML = "correct";
+          //result.innerHTML = "correct";
           arrEncerts[(answersContainer.children[0].id)-1] = 1;
+          numPreguntas.innerHTML = correct + "/" + questions.length;
+          document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
         }
         else{
-          console.log("oleaerrro")
-          //result.classList.remove("correct");
-          //result.classList.remove("hide");
-          result.innerHTML = "wrong";
+          //result.innerHTML = "wrong";
           arrEncerts[(answersContainer.children[0].id)-1] = 0;
+          document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "red";
         }
       });
-      //currentQuestion++;
+      console.log(e);
+      e.target.style.visibility = 'hidden';
       break;
 
     default:
       return;
       break;
   }
-
-  //End different types
 }

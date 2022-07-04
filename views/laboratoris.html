@@ -9,14 +9,12 @@
         <thead>
             <tr>
                 <th>LABORATORI</th>
-                <th>TAG</th>
+                <th>IMATGE</th>
                 <th>Size</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            
-            
             <tr>
                 <td>
                     Laboratori 1
@@ -31,7 +29,6 @@
                     <a class="btn btn-danger btn-xs" data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..." href="/images/remove/sha256:3b5dea5ad6fed5d3c98264f291b074f22dadf55de713b577cc7468158b22b77a">
                         <span class="glyphicon glyphicon-trash"></span> Remove
                     </a>
-                    
                 </td>
             </tr>
             
@@ -51,30 +48,52 @@
                        href="/containers/start/">
                         <span class="glyphicon glyphicon-play"></span> Start
                     </a>
+                    <a class="btn btn-danger btn-xs" data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..." href="/images/remove/sha256:5d0da3dc9764">
+                        <span class="glyphicon glyphicon-trash"></span> Remove
+                    </a>
                 </td>
             </tr>
-            
-
-            
-
+        <% for(var i in quizzes) { %> 
+            <tr>
+                <td><%= quizzes[i].title %></td>
+                <td><%= quizzes[i].image %></td>
+                <td><%= quizzes[i].slug %> - <%= quizzes[i].questions %></td>
+                <td>
+                  <%= quizzes[i].downloaded %> - <% if (quizzes[i].downloaded == true) { %>
+                    <a class="btn btn-danger btn-xs" data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..." href="/laboratoris/remove/sha256:5d0da3dc976460b72c77d94c8a1ad043720b0416bfc16c52c45d4847e53fadb6">
+                        <span class="glyphicon glyphicon-trash"></span> Remove
+                    </a>
+                  <% } else { %>
+                    <a onclick="downloadImage()" class="btn btn-info btn-xs" data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..." href="#">
+                        <span class="glyphicon glyphicon-cloud-download"></span> Download
+                    </a>
+                  <% } %>
+                </td>
+            </tr>
+        <% } %>
             
         </tbody>
     </table>
 </div>
-<div class="panel panel-default">
-    <!-- Default panel contents -->
-    <div class="panel-heading">Panel heading</div>
-    <div class="panel-body">
-      <p>...</p>
-    </div>
-  
-    <!-- List group -->
-    <ul class="list-group">
-      <li class="list-group-item">Cras justo odio</li>
-      <li class="list-group-item">Dapibus ac facilisis in</li>
-      <li class="list-group-item">Morbi leo risus</li>
-      <li class="list-group-item">Porta ac consectetur ac</li>
-      <li class="list-group-item">Vestibulum at eros</li>
-    </ul>
-  </div>
 <% include include/footer.html %>
+<script>
+    function downloadImage() {
+        console.log("init");
+        var host = window.location.origin;
+        var socket = io.connect(host);
+        imagesName = 'centos:latest'
+        socket.emit('pull', imagesName);
+            socket.on('show', (data) => {
+            console.log(data);
+        });
+
+        socket.on('end', (status) => {
+            socket.disconnect();
+            location.reload();
+        });
+    }
+
+    $(document).ready(function () {
+        
+    });
+</script>
