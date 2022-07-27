@@ -126,12 +126,12 @@ const returnContainersRouter = (io) => {
     });
 
     const fs = require("fs");
-    let jsonObject = null;
+    let jsonObject;
  
     app.use(express.static(__dirname + "/public"));
     app.use("data", express.static(__dirname+"/data"));
 
-    router.get('/console/:id', (req, res, next) => {
+    router.get('/console/:id', (req, res, next) => {        
         contenido = fs.readFileSync(__dirname+'/data/' + req.query.name + ".json", 'utf8', function(err, data){
             // Display the file content
             console.log(data);
@@ -172,7 +172,10 @@ const returnContainersRouter = (io) => {
     io.on('connection', (socket) => {
 
         socket.on('execQuiz', function (data) {
-            const myContainer = dockerExec.getContainer(data.idContainer);
+            let myContainer = dockerExec.getContainer(data.idContainer);
+            let jsonObjectPre = fs.readFileSync(__dirname+`/data/` + data.slug + `.json`);
+            let jsonObject = JSON.parse(jsonObjectPre);
+            console.log(jsonObject.questions);
             let comanda = "";
             if(data.tipus == "pre" && jsonObject.questions[data.currentQuestion].pre !== undefined){
                 console.log(jsonObject.questions[data.currentQuestion].pre);
@@ -190,7 +193,7 @@ const returnContainersRouter = (io) => {
                 comanda = jsonObject.questions[data.currentQuestion].post;
                 console.log(comanda);
             }
-            myContainer.exec(['/bin/bash', '-c', comanda], {stdout: true}, (err, results) => {
+            myContainer.exec(['/bin/sh', '-c', comanda], {stdout: true}, (err, results) => {
                 console.log(results.stdout);
                 socket.emit('returnDrawerResponse', results.stdout);
             });
@@ -206,7 +209,7 @@ const returnContainersRouter = (io) => {
             myContainer.exec(['echo', 'goodbye world'], {stdout: true}, (err, results) => {
                 console.log(results.stdout);
             });
-            myContainer.exec(['/bin/bash', '-c','/tmp/hola.sh'], {stdout: true}, (err, results) => {
+            myContainer.exec(['/bin/sh', '-c','/tmp/hola.sh'], {stdout: true}, (err, results) => {
                 console.log(results.stdout);
                 socket.emit('returnDrawerResponse', results.stdout);
             });
@@ -229,7 +232,7 @@ const returnContainersRouter = (io) => {
                 'AttachStderr': true,
                 'AttachStdin': true,
                 'Tty': true,
-                Cmd: ['/bin/bash'],
+                Cmd: ['/bin/sh'],
             };
             container.exec(cmd, (err, exec) => {
                 let options = {

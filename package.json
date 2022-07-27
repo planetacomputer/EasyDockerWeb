@@ -15,9 +15,10 @@
     "express-status-monitor": "^1.2.8",
     "serve-favicon": "^2.4.5",
     "socket.io": "2.4.1",
-    "simple-dockerode": "latest"
+    "simple-dockerode": "latest",
+    "node-schedule": "2.1.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.19"
   }
 }

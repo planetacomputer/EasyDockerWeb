@@ -247,16 +247,12 @@ router.get('/', async (req, res, next) => {
     router.get('/console/:id', (req, res, next) => {
       const container = docker.getContainer(req.params.id);
       const timerTask = userJobs[container.id];
-      if (!timerTask){
-        console.log("Container NULLL");
-        res.redirect('/');
-      }
       contenido = fs.readFileSync(__dirname+'/data/' + req.query.name + ".json", 'utf8', function(err, data){
           // Display the file content
           console.log(data);
       });
       jsonObject = JSON.parse(contenido);
-      //console.log(jsonObject.questions);
+      console.log(jsonObject.questions);
       res.render('terminal', { quizData: jsonObject.quizData, questions:jsonObject.questions, timerTask: timerTask.nextInvocation().toDate()});
   });
 

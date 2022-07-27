@@ -77,7 +77,7 @@ function loadQuestion(questionNum) {
             (element) => (element.disabled = true)
           );
           e.target.dataset.clicked = "true";
-          console.log("clicked onn it");
+          console.log("clicked on it");
           e.target.style.backgroundColor = "blue";
           checkAnswer();
         });
@@ -127,7 +127,8 @@ function loadQuestion(questionNum) {
 
     console.log(questions[questionNum].pre);
   if(questions[questionNum].pre !== undefined){
-    socket.emit('execQuiz', {tipus: "pre", currentQuestion: currentQuestion, idContainer: id }, (response) => {
+    console.log("El slug es " + quizData.slug);
+    socket.emit('execQuiz', {tipus: "pre", currentQuestion: currentQuestion, idContainer: id, slug: quizData.slug }, (response) => {
       socket.removeAllListeners();
       socket.disconnect();
     });
@@ -201,7 +202,7 @@ function checkAnswer(e) {
       break;
     
     case "check":
-      socket.emit('execQuiz', { tipus: 'check', currentQuestion: currentQuestion, idContainer: id }, (response) => {
+      socket.emit('execQuiz', { tipus: 'check', currentQuestion: currentQuestion, idContainer: id, slug: quizData.slug }, (response) => {
         socket.removeAllListeners();
         socket.disconnect();
       });

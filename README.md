@@ -1,3 +1,6 @@
+Laboratoris
+Quan faig click sobre Download es descarrega i s'executa el laboratori, passant al terminal.
+
 # EasyDockerWeb
 
 A simple Web Ui for Docker using `xterm.js`, `Node.js` and `Socket.io`.

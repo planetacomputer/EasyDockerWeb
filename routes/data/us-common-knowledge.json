@@ -2,7 +2,8 @@
     "quizData": {
         "title": "US Common Knowledaxx",
         "slug": "us-common-knowledge",
-        "image": "mumshad_openssh:latest"
+        "image": "ubuntu:latest",
+        "sha256": "62aedd01bd85"
     },
     "questions" : [
         {
