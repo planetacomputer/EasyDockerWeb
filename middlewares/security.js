@@ -17,6 +17,6 @@ const checkUser = (req, res, next) => {
     }
 };
 
-module.exports = {
-    checkUser,
-};
+// module.exports = {
+//     checkUser,
+// };

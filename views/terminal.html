@@ -199,7 +199,7 @@ div.itemSelected {
 </head>
 <body class="container">
 <div id="demo"></div>
-<a href="/laboratoris">Labs</a>
+<a href="/laboratoris">Labs - <%= userinfo.displayName %></a>
 <div class="row row-no-gutters">
     <div id="quiz" class="col-sm-2">
         <h1 class="quiz-title">Quiz Title</h1>
@@ -331,7 +331,8 @@ var x = setInterval(function() {
   if (distance < 0) {
     clearInterval(x);
     document.getElementById("demo").innerHTML = "EXPIRED";
-    $("#questionari").fadeTo( 1000, 0 );
+    socket.emit('stop', '<%= containerId %>');
+    $("#questionari").fadeTo(1000, 0, function() { $("#questionari").remove(); });
   }
 }, 1000);
 </script>

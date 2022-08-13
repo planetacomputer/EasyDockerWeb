@@ -1,35 +1,24 @@
 const express = require('express');
 const path = require('path');
-require('dotenv').config({path: __dirname + '/.env'});
 const bodyParser = require('body-parser');
 const app = express();
 
-const passport = require('passport');
+require('dotenv').config({path: __dirname + '/.env'});
+
+const mongoose = require('mongoose');
+const passport = require('passport')
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session)
 
-const mongoose = require('mongoose');
+//const {checkUser} = require('./middlewares/security');
+//const {checkUserGoogle} = require('./middlewares/google-auth');
+
+//dotenv.config({ path: './config/config.env' })
+
 mongoose.connect(process.env.MONGO_URI,{
     useNewUrlParser:true,
     useUnifiedTopology: true
 })
-
-require('./config/passport')(passport)
-
-//const {checkUser} = require('./middlewares/security');
-const { auth } = require('./middlewares/auth')
-
-app.use(
-    session({
-      secret: 'keyboard cat',
-      resave: false,
-      saveUninitialized: false,
-      store: new MongoStore({ mongooseConnection: mongoose.connection }),
-    })
-  )
-// Passport middleware
-app.use(passport.initialize())
-app.use(passport.session())
 
 const io = require('socket.io')();
 const favicon = require('serve-favicon');
@@ -47,23 +36,35 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
 
-
-
-// app.use(session({
-//     saveUninitialized: false,
-//     resave: false,
-//     secret: 'easy-docker-web',
-//     cookie: {
-//         maxAge: 365 * 24 * 60 * 60 * 1000,
-//         expires: false
-//     }
-// }));
+app.use(session({
+    saveUninitialized: false,
+    resave: false,
+    secret: 'easy-docker-web',
+    cookie: {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        expires: false
+    }
+}));
 
 // public files
 app.use('/static', express.static(__dirname + '/public'));
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+
+app.use(
+    session({
+      secret: 'keyboard cat',
+      resave: false,
+      saveUninitialized: false,
+      store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    })
+  )
+  // Passport middleware
+app.use(passport.initialize())
+app.use(passport.session())
+
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.all('*', (req, res, next) => {
@@ -90,7 +91,6 @@ app.use('/overview', overview);
 app.use('/containers', containers);
 app.use('/images', images);
 app.use('/laboratoris', laboratoris);
-app.use('/auth', require('./routes/auth'))
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

@@ -194,6 +194,7 @@ const returnContainersRouter = (io) => {
                 console.log(comanda);
             }
             myContainer.exec(['/bin/sh', '-c', comanda], {stdout: true}, (err, results) => {
+                if (err) return;
                 console.log(results.stdout);
                 socket.emit('returnDrawerResponse', results.stdout);
             });

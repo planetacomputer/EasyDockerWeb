@@ -1,7 +1,7 @@
 {
     "quizData": {
         "title": "CentOS US Common Knowledgeaa2",
-        "slug": "us-common-knowledge",
+        "slug": "david",
         "image": "centos:latest",
         "sha256": "5d0da3dc9764"
     },
