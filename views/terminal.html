@@ -189,6 +189,9 @@ div.itemSelected {
 
   var questions2 = decodeHtml("<%= JSON.stringify(questions) %>");  
   var quizData2 = decodeHtml("<%= JSON.stringify(quizData) %>");
+  var firstName = decodeHtml("<%= userinfo.firstName %>");
+  var lastName = decodeHtml("<%= userinfo.lastName %>");
+  var email = decodeHtml("<%= userinfo.email %>");
   
   console.log(decodeHtml(questions));
   var questions = JSON.parse(questions2);
@@ -204,6 +207,7 @@ div.itemSelected {
     <div id="quiz" class="col-sm-2">
         <h1 class="quiz-title">Quiz Title</h1>
         <p class="correct-count hide">Correct:</p>
+        <div><progress id="progressBar" max="100" value="0"> 0% </progress></div>
         <div id="ariadnaThread"></div>
         <div id="questionari">
           <p class="question hide">Question</p>

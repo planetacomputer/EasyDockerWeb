@@ -88,3 +88,13 @@ yarn install
 yarn start
 ```
 [http://localhost:4000](http://localhost:4000)
+
+## Mongo
+dataIntent
+slugLaboratori X
+firstName X
+lastName X
+email X
+nota X
+arrEncerts X
+datePosted X

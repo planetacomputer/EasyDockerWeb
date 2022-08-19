@@ -19,21 +19,34 @@ module.exports = function (passport) {
           firstName: profile.name.givenName,
           lastName: profile.name.familyName,
           image: profile.photos[0].value,
-          email: profile.emails[0].value
+          email: profile.emails[0].value,
+          createdAt: Date.now
         }
 
         try {
           //find the user in our database 
-          let user = await User.findOne({ googleId: profile.id })
-
-          if (user) {
-            //If user present in our database.
-            done(null, user)
-          } else {
-            // if user is not preset in our database save user data to database.
-            user = await User.create(newUser)
-            done(null, user)
+          let user = await User.findOne({ email: profile.emails[0].value })
+          //no user in the database, redirect index
+          if (!user){
+            console.log("no hi ha usuari")
+            done(null, null)
           }
+          
+          else{
+            //user exists and has googleId
+            if (user.googleId) {
+              //If user present in our database.
+              console.log("si hi ha usuari")
+              done(null, user)
+            //user preregistered, but must be filled out with GAccount info
+            } else {
+              console.log("usuari preregistrat")
+              // if user does not exist in our database, save user.
+              const filter = { email: profile.emails[0].value };
+              user = await User.findOneAndUpdate(filter, newUser)
+              done(null, user)
+            }
+          } 
         } catch (err) {
           console.error(err)
         }

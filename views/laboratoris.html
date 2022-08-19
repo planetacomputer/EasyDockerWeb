@@ -55,6 +55,7 @@
                 <th>IMATGE</th>
                 <th>Size</th>
                 <th>Action</th>
+                <th>Completed</th>
                 <th>Countdown</th>
             </tr>
         </thead>
@@ -111,6 +112,9 @@
                     -->
                      <% } %>
                      <% } %>
+                </td>
+                <td>
+                    <progress id="file" max="100" value="70"> 70% </progress>70%
                 </td>
                 <td>
                 <% if (quizzes[i].containerId) { %>

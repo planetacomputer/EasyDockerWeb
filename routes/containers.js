@@ -5,6 +5,8 @@ const Docker = require('dockerode');
 const Dockerode = require('simple-dockerode');
 const stream = require('stream');
 const { stringify } = require('querystring');
+const mongoose = require('mongoose');
+const Quiz = require('../models/Quiz');
 
 const docker = new Docker();
 const dockerExec = new Dockerode({socketPath: '/var/run/docker.sock'});
@@ -201,6 +203,15 @@ const returnContainersRouter = (io) => {
         });
 
         socket.on('postQuestion', function (data) { 
+            console.log("sha respost pregunta");
+            console.log(data);
+            let quiz = new Quiz(data);
+            console.log(quiz);
+            // Save the new model instance, passing a callback
+            quiz.save((err) => {
+                if (err) return handleError(err);
+                // saved!
+            });
         });
       
         socket.on('encert', function (data) {  

@@ -5,6 +5,7 @@ var startBtn = document.querySelector(".start-btn"),
   quizTitleElement = document.querySelector(".quiz-title"),
   result = document.getElementById("result"),
   numPreguntas =  document.getElementById("numPreguntas"),
+  progressBar = document.getElementById("progressBar"),
   correctCount = document.querySelector(".correct-count");
 let currentQuestion = 0;
 let correct = 0;
@@ -25,10 +26,22 @@ startBtn.addEventListener("click", () => {
 nextBtn.addEventListener("click", () => {
   loadQuestion(++currentQuestion);
 });
-
+let numTotalPoints = 0;
+let numPoints = 0;
 let arrEncerts = new Array(questions.length);
 function startQuiz() {
   console.log("start Quiz");
+  for (var i=0; i < questions.length; i++) {
+    //console.log(questions[i].points);
+    if (questions[i].points === undefined){
+      numTotalPoints = numTotalPoints + 1;
+    }
+    else{
+      numTotalPoints = numTotalPoints + questions[i].points;
+    }
+ }
+ progressBar.max = numTotalPoints;
+ console.log("NUm totla points: " + numTotalPoints);
   startBtn.classList.add("hide");
   nextBtn.classList.remove("hide");
   questionElement.classList.remove("hide");
@@ -44,6 +57,7 @@ function startQuiz() {
 function loadQuestion(questionNum) {
   console.log("carrega quest"+ questionNum);
   numPreguntas.innerHTML = correct + "/" + questions.length;
+
   result.innerHTML = "";
   if (currentQuestion === questions.length) {
     startBtn.classList.remove("hide");
@@ -79,7 +93,7 @@ function loadQuestion(questionNum) {
           e.target.dataset.clicked = "true";
           console.log("clicked on it");
           e.target.style.backgroundColor = "blue";
-          checkAnswer();
+          checkAnswer(e, updateDB);
         });
         btnGrid.appendChild(answerElement);
       });
@@ -93,7 +107,7 @@ function loadQuestion(questionNum) {
       checkBtn.classList.add("check-btn");
       inputElement.type = "text";
       checkBtn.addEventListener("click", (e) => {
-        checkAnswer();
+        checkAnswer(e, updateDB);
       });
       answersContainer.appendChild(inputElement);
       answersContainer.appendChild(checkBtn);
@@ -105,7 +119,7 @@ function loadQuestion(questionNum) {
       checkBtn.innerHTML = "Check";
       checkBtn.classList.add("check-btn");
       checkBtn.addEventListener("click", (e) => {
-        checkAnswer(e);
+        checkAnswer(e, updateDB);
       });
 
       answersContainer.appendChild(checkBtn);
@@ -138,10 +152,18 @@ function loadQuestion(questionNum) {
   }
 }
 
+function updateDB(arrAciertos, puntos){
+  console.log(arrAciertos)
+  console.log(puntos)
+  var mapQuiz = { slugLaboratori: quizData.slug, firstName: firstName, lastName: lastName,
+    email: email, nota: puntos, arrEncerts: arrAciertos }
+  socket.emit("postQuestion", mapQuiz);
+}
 
 var id = window.location.pathname.split('/')[3];
-function checkAnswer(e) {
+function checkAnswer(e, myCallback) {
   // Check different types
+  let puntsActuals = 0;
   let solucio = "";
   switch (answersContainer.dataset.type) {
     case "mc":
@@ -165,19 +187,24 @@ function checkAnswer(e) {
         }  
         if (button.textContent === solucio) {
             button.classList.add("correct");
+            
             if (button.dataset.clicked === "true"){
               document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
               correct++;
+              puntsActuals = (typeof questions[currentQuestion].points !== "undefined") ? questions[currentQuestion].points : 1;
+              numPoints = numPoints + puntsActuals;
+              progressBar.value = numPoints;
+              console.log("Punts actuals: " + puntsActuals);
               arrEncerts[(answersContainer.children[0].id)-1] = 1;
             }
             else{
               arrEncerts[(answersContainer.children[0].id)-1] = 0;
               document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "red";
             }
-          } else {
+        } else {
             button.classList.add("wrong");
             //document.getElementById("item-" + (answersContainer.children[0].id)-1).style.backgroundColor = "red";
-          }
+        }
 
         });
       numPreguntas.innerHTML = correct + "/" + questions.length;
@@ -191,6 +218,9 @@ function checkAnswer(e) {
       console.log("foundValue"+foundValues);
       if (foundValues) {
         qInputElement.classList.add("correct");
+        puntsActuals = (typeof questions[currentQuestion].points !== "undefined") ? questions[currentQuestion].points : 1;
+        numPoints = numPoints + puntsActuals;
+        progressBar.value = numPoints;
         arrEncerts[(answersContainer.children[0].id)-1] = 1;
         correct++;
         document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
@@ -211,6 +241,10 @@ function checkAnswer(e) {
           correct++;
           //result.innerHTML = "correct";
           arrEncerts[(answersContainer.children[0].id)-1] = 1;
+          puntsActuals = (typeof questions[currentQuestion].points !== "undefined") ? questions[currentQuestion].points : 1;
+          numPoints = numPoints + puntsActuals;
+          progressBar.value = numPoints;
+          console.log("punts actuals chekc: " + puntsActuals);
           numPreguntas.innerHTML = correct + "/" + questions.length;
           document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
         }
@@ -228,4 +262,9 @@ function checkAnswer(e) {
       return;
       break;
   }
+  myCallback(arrEncerts, numPoints);
+  console.log("PuntsFinsAlmomemnnt" + numPoints);
+  
+  //alert(numPoints);
 }
+
