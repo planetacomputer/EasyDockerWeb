@@ -9,12 +9,12 @@ const mongoose = require('mongoose');
 const Quiz = require('../models/Quiz');
 
 const docker = new Docker();
-const dockerExec = new Dockerode({socketPath: '/var/run/docker.sock'});
+const dockerExec = new Dockerode({ socketPath: '/var/run/docker.sock' });
 let contenido = "";
 const returnContainersRouter = (io) => {
     /* GET containers. */
     router.get('/', (req, res, next) => {
-        docker.listContainers({all: true}, (err, containers) => {
+        docker.listContainers({ all: true }, (err, containers) => {
             res.locals.formatName = (str) => {
                 return str[0].split('/')[1];
             };
@@ -44,9 +44,9 @@ const returnContainersRouter = (io) => {
 
     router.get('/remove/:id', (req, res, next) => {
         const container = docker.getContainer(req.params.id);
-        container.remove({force: true}, (err, data) => {
+        container.remove({ force: true }, (err, data) => {
             if (err) {
-                res.render('error', {error: err, message: err.json.message});
+                res.render('error', { error: err, message: err.json.message });
             } else {
                 res.redirect('/containers');
             }
@@ -129,18 +129,18 @@ const returnContainersRouter = (io) => {
 
     const fs = require("fs");
     let jsonObject;
- 
-    app.use(express.static(__dirname + "/public"));
-    app.use("data", express.static(__dirname+"/data"));
 
-    router.get('/console/:id', (req, res, next) => {        
-        contenido = fs.readFileSync(__dirname+'/data/' + req.query.name + ".json", 'utf8', function(err, data){
+    app.use(express.static(__dirname + "/public"));
+    app.use("data", express.static(__dirname + "/data"));
+
+    router.get('/console/:id', (req, res, next) => {
+        contenido = fs.readFileSync(__dirname + '/data/' + req.query.name + ".json", 'utf8', function (err, data) {
             // Display the file content
             console.log(data);
         });
         jsonObject = JSON.parse(contenido);
-        console.log(jsonObject.questions);
-        res.render('terminal', { quizData: jsonObject.quizData, questions:jsonObject.questions});
+        //console.log(jsonObject.questions);
+        res.render('terminal', { quizData: jsonObject.quizData, questions: jsonObject.questions });
     });
 
     router.get('/console2/:id', (req, res, next) => {
@@ -152,90 +152,120 @@ const returnContainersRouter = (io) => {
     });
 
     //parsegem del fitxer json la solucio
-    router.post('/checkAnswer/ajax', (req, res, next) =>{
+    router.post('/checkAnswer/ajax', (req, res, next) => {
         id = req.body.id;
         slug = req.body.slug;
         console.log("slug: " + slug);
-        let jsonObject = fs.readFileSync(__dirname+`/data/` + slug + `.json`);
+        let jsonObject = fs.readFileSync(__dirname + `/data/` + slug + `.json`);
         let quizJson = JSON.parse(jsonObject);
-        questions = quizJson.questions[id-1];
+        questions = quizJson.questions[id - 1];
         for (var key in questions.answers) {
             if (questions.answers.hasOwnProperty(key)) {
                 console.log(key + " -> " + questions.answers[key].text);
                 console.log(key + " -> " + questions.answers[key].correct);
-                if(questions.answers[key].correct == true){
+                if (questions.answers[key].correct == true) {
                     var1 = questions.answers[key].text;
-                    res.json({var1});
-                } 
+                    res.json({ var1 });
+                }
             }
         }
     });
 
     io.on('connection', (socket) => {
-
+        const sessionID = socket.id;
         socket.on('execQuiz', function (data) {
             let myContainer = dockerExec.getContainer(data.idContainer);
-            let jsonObjectPre = fs.readFileSync(__dirname+`/data/` + data.slug + `.json`);
+            let jsonObjectPre = fs.readFileSync(__dirname + `/data/` + data.slug + `.json`);
             let jsonObject = JSON.parse(jsonObjectPre);
             console.log(jsonObject.questions);
             let comanda = "";
-            if(data.tipus == "pre" && jsonObject.questions[data.currentQuestion].pre !== undefined){
+            if (data.tipus == "pre" && jsonObject.questions[data.currentQuestion].pre !== undefined) {
                 console.log(jsonObject.questions[data.currentQuestion].pre);
                 comanda = jsonObject.questions[data.currentQuestion].pre;
             }
-            else if (data.tipus == "check" && jsonObject.questions[data.currentQuestion].check !== undefined){
+            else if (data.tipus == "check" && jsonObject.questions[data.currentQuestion].check !== undefined) {
                 console.log("check");
                 console.log(jsonObject.questions[data.currentQuestion].check);
                 comanda = jsonObject.questions[data.currentQuestion].check;
                 console.log(comanda);
             }
-            else if (data.tipus == "post" && jsonObject.questions[data.currentQuestion].post !== undefined){
+            else if (data.tipus == "post" && jsonObject.questions[data.currentQuestion].post !== undefined) {
                 console.log("post");
                 console.log(jsonObject.questions[data.currentQuestion].post);
                 comanda = jsonObject.questions[data.currentQuestion].post;
                 console.log(comanda);
             }
-            myContainer.exec(['/bin/sh', '-c', comanda], {stdout: true}, (err, results) => {
+            myContainer.exec(['/bin/sh', '-c', comanda], { stdout: true }, (err, results) => {
                 if (err) return;
                 console.log(results.stdout);
                 socket.emit('returnDrawerResponse', results.stdout);
             });
         });
 
-        socket.on('postQuestion', function (data) { 
-            console.log("sha respost pregunta");
-            console.log(data);
-            let quiz = new Quiz(data);
-            console.log(quiz);
-            // Save the new model instance, passing a callback
-            quiz.save((err) => {
-                if (err) return handleError(err);
-                // saved!
-            });
+        socket.on("disconnect", () => {
+            console.log("Aquest client amb scoket marxa " + socket.id); // undefined
         });
-      
-        socket.on('encert', function (data) {  
+
+        socket.on('postQuestion', function (data) {
+            console.log("sha respost pregunta" + sessionID);
+            //console.log(data);
+            let quiz = new Quiz(data);
+            Quiz.findOne({ sessionID: quiz.sessionID }, function (err, docs) {
+                if (err) {
+                    console.log(err)
+                }
+                else {
+                    console.log("Result : ", docs);
+                    if (docs != null) {
+                        console.log("Trobat!" + docs.sessionID)
+                        const quizNoID = {
+                            arrEncerts: quiz.arrEncerts,
+                            "datePosted": quiz.datePosted,
+                            'sessionID': quiz.sessionID,
+                            'slugLaboratori': quiz.slugLaboratori,
+                            'firstName': quiz.firstName,
+                            'lastName': quiz.lastName,
+                            'email': quiz.email,
+                            'nota': quiz.nota
+                          }
+                        Quiz.updateOne({ sessionID: docs.sessionID },
+                            quizNoID, function (err, docs) {
+                                if (err) {
+                                    console.log("Error en update")
+                                    console.log(err)
+                                }
+                                else {
+                                    console.log("Updated Docs : ", docs);
+                                }
+                            });
+                    }
+                    else {
+                        quiz.save(function(err,result){
+                            if (err){
+                                console.log(err);
+                            }
+                            else{
+                                console.log(result)
+                            }
+                        })
+                    }
+                }
+            });
+
+        });
+
+        socket.on('encert', function (data) {
             //console.log(data);
             //console.log(data.idContainer);
             const myContainer = dockerExec.getContainer(data.idContainer);
-            myContainer.exec(['echo', 'goodbye world'], {stdout: true}, (err, results) => {
-                console.log(results.stdout);
+            myContainer.exec(['echo', 'goodbye world'], { stdout: true }, (err, results) => {
+                //console.log(results.stdout);
             });
-            myContainer.exec(['/bin/sh', '-c','/tmp/hola.sh'], {stdout: true}, (err, results) => {
-                console.log(results.stdout);
+            myContainer.exec(['/bin/sh', '-c', '/tmp/hola.sh'], { stdout: true }, (err, results) => {
+                //console.log(results.stdout);
                 socket.emit('returnDrawerResponse', results.stdout);
             });
         });
-
-        // socket.on('check', function (data) { 
-        //     console.log(data.currentQuestion);
-        //     //console.log(questions[data.currentQuestion].pre);
-        //     const myContainer = dockerExec.getContainer(data.idContainer);
-        //     myContainer.exec(['/bin/bash', '-c', data.fileCheck], {stdout: true}, (err, results) => {
-        //         console.log(results.stdout);
-        //         socket.emit('returnDrawerResponse', results.stdout);
-        //     });
-        // });
 
         socket.on('exec', (id, w, h) => {
             const container = docker.getContainer(id);
@@ -266,7 +296,7 @@ const returnContainersRouter = (io) => {
                 }
 
                 exec.start(options, (err, stream) => {
-                    const dimensions = {h, w};
+                    const dimensions = { h, w };
                     if (dimensions.h != 0 && dimensions.w != 0) {
                         exec.resize(dimensions, () => {
                         });

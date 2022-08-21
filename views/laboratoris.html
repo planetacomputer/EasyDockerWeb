@@ -59,13 +59,12 @@
                 <th>Countdown</th>
             </tr>
         </thead>
-        <tbody>
-            
+        <tbody>fs
         <%  for(var i in quizzes) { %> 
             <tr>
                 <td><%= quizzes[i].title %> - <%= quizzes[i].cli %></td>
                 <td><%= quizzes[i].image %>-</td>
-                <td><%= quizzes[i].slug %> - <%= quizzes[i].questions %> - <%= quizzes[i].containerId %></td>
+                <td><%= quizzes[i].slug %> - <%= quizzes[i].questions %> - <%= quizzes[i].containerId %>-----<%= quizzes[i].numQuizzes %> -----<%= quizzes[i].maxNota %> </td>
                 <td>
                  <% if (quizzes[i].containerId) { %>
                  <a class="btn btn-primary btn-xs"

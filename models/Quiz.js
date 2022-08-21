@@ -1,6 +1,10 @@
 const mongoose = require('mongoose')
 
 const QuizSchema = new mongoose.Schema({
+  sessionID: {
+    type: String,
+    required: true,
+  },
   slugLaboratori: {
     type: String,
     required: true,

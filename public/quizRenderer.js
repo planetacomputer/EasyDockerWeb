@@ -29,8 +29,10 @@ nextBtn.addEventListener("click", () => {
 let numTotalPoints = 0;
 let numPoints = 0;
 let arrEncerts = new Array(questions.length);
+let sessionQuiz;
 function startQuiz() {
-  console.log("start Quiz");
+  sessionQuiz = socket.id;
+  console.log("start Quiz "+ sessionQuiz);
   for (var i=0; i < questions.length; i++) {
     //console.log(questions[i].points);
     if (questions[i].points === undefined){
@@ -60,11 +62,11 @@ function loadQuestion(questionNum) {
 
   result.innerHTML = "";
   if (currentQuestion === questions.length) {
-    startBtn.classList.remove("hide");
+    //startBtn.classList.remove("hide");
     nextBtn.classList.add("hide");
     questionElement.classList.add("hide");
     answersContainer.classList.add("hide");
-    startBtn.innerHTML = "Restart";
+    //startBtn.innerHTML = "Restart";
     correct = 0;
     correctCount.innerHTML = `Correct: ${correct}/${questions.length}`;
     $('.item').remove();
@@ -150,12 +152,13 @@ function loadQuestion(questionNum) {
   document.getElementById("item-" + questionNum).classList.add("itemSelected");
 
   }
+  //alert(socket.id);
 }
 
 function updateDB(arrAciertos, puntos){
   console.log(arrAciertos)
   console.log(puntos)
-  var mapQuiz = { slugLaboratori: quizData.slug, firstName: firstName, lastName: lastName,
+  var mapQuiz = { sessionID: socket.id, slugLaboratori: quizData.slug, firstName: firstName, lastName: lastName,
     email: email, nota: puntos, arrEncerts: arrAciertos }
   socket.emit("postQuestion", mapQuiz);
 }

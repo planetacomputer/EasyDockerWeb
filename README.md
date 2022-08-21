@@ -90,7 +90,7 @@ yarn start
 [http://localhost:4000](http://localhost:4000)
 
 ## Mongo
-dataIntent
+sessionID
 slugLaboratori X
 firstName X
 lastName X
