@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Docker = require('dockerode');
 const docker = new Docker();
+const { isAdmin } = require('../middlewares/auth')
 
 const returnImagesRouter = (io) => {
     /* GET users listing. */
-    router.get('/', (req, res, next) => {
+    router.get('/', isAdmin, (req, res, next) => {
         docker.listImages((err, listImages) => {
             res.locals.imageName = (str) => {
                 if (str) {
@@ -36,12 +37,12 @@ const returnImagesRouter = (io) => {
                 return str;
             };
             res.render('images', {
-                images: listImages,
+                images: listImages, userinfo: req.user
             });
         });
     });
 
-    router.get('/remove/:id', (req, res, next) => {
+    router.get('/remove/:id', isAdmin, (req, res, next) => {
         let imageId = req.params.id;
         if (imageId.indexOf(':') > 0) {
             imageId = imageId.split(':')[1];
@@ -56,7 +57,7 @@ const returnImagesRouter = (io) => {
         });
     });
 
-    router.get('/search/:name', (req, res, next) => {
+    router.get('/search/:name', isAdmin, (req, res, next) => {
         let name = req.params.name;
         docker.searchImages({term: name}, (err, data) => {
             if (err) throw err;

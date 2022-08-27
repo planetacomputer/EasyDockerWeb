@@ -4,7 +4,8 @@
         "slug": "david-copy",
         "image": "mcr.microsoft.com/powershell:latest",
         "sha256": "742f7b21a9ca",
-        "cli": "pwsh"
+        "cli": "pwsh",
+        "active": 1
     },
     "questions" : [
         {
@@ -83,7 +84,8 @@
               "text": "Quin usuari s'acaba de crear? (comença per la lletra j)",
               "type": "txt",
               "pre": "adduser --disabled-password --gecos '' jose",
-              "answers": ["jose"]
+              "answers": ["jose"],
+              "points": 2
           }
     ]
 }

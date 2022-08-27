@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Docker = require('dockerode');
 const docker = new Docker();
+const { isAdmin } = require('../middlewares/auth')
 /* GET home page. */
 const returnOverviewRouter = (io) => {
-    router.get('/', (req, res, next) => {
+    router.get('/', isAdmin, (req, res, next) => {
         docker.info((err, info) => {
             // console.log(info)
             if (err) {
@@ -14,7 +15,7 @@ const returnOverviewRouter = (io) => {
                 });
             } else {
                 res.render('overview', {
-                    info: info
+                    info: info, userinfo: req.user
                 });
             }
         });

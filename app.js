@@ -47,18 +47,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
 
-
-
-// app.use(session({
-//     saveUninitialized: false,
-//     resave: false,
-//     secret: 'easy-docker-web',
-//     cookie: {
-//         maxAge: 365 * 24 * 60 * 60 * 1000,
-//         expires: false
-//     }
-// }));
-
 // public files
 app.use('/static', express.static(__dirname + '/public'));
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

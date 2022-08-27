@@ -5,7 +5,10 @@
         "image": "busybox:latest",
         "sha256": "62aedd01bd85",
         "cli": "/bin/sh",
-        "minutes": 1    },
+        "numMaxIntents": 2,
+        "minutes": 40,
+        "active": 1    
+    },
     "questions" : [
         {
            "id": 1,
@@ -17,8 +20,7 @@
               { "text": "Philadelphia", "correct": false },
               { "text": "Washington D.C.", "correct": true },
               { "text": "Chicago", "correct": false }
-            ],
-            "points": 2
+            ]
         },
         {
           "id": 2,
@@ -26,7 +28,9 @@
           "type": "check",
           "pre": "touch /tmp/questio2.txt",
           "check": "if [ -f /tmp/pepe.txt ]; then echo 0; else echo 1; fi;",
-          "post": "rm /tmp/pepe.txt /tmp/questio2.txt"
+          "post": "rm /tmp/pepe.txt /tmp/questio2.txt",
+          "points": 2
+          
         },
         {
             "id": 3,
@@ -37,7 +41,8 @@
               { "text": "Alaska", "correct": true },
               { "text": "Texas", "correct": false },
               { "text": "Nevada", "correct": false }
-            ]
+            ],
+            "points": 3
           },
           {
             "id": 4,
@@ -48,7 +53,8 @@
               { "text": "Intel i9", "correct": false },
               { "text": "ARM", "correct": true },
               { "text": "Intel Celeron", "correct": false }
-            ]
+            ],
+            "points": 4
           },
           {
             "id": 5,

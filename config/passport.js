@@ -20,6 +20,7 @@ module.exports = function (passport) {
           lastName: profile.name.familyName,
           image: profile.photos[0].value,
           email: profile.emails[0].value,
+          role: "user",
           createdAt: Date.now
         }
 

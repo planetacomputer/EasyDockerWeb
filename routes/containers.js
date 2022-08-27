@@ -7,13 +7,14 @@ const stream = require('stream');
 const { stringify } = require('querystring');
 const mongoose = require('mongoose');
 const Quiz = require('../models/Quiz');
+const { isAdmin } = require('../middlewares/auth')
 
 const docker = new Docker();
 const dockerExec = new Dockerode({ socketPath: '/var/run/docker.sock' });
 let contenido = "";
 const returnContainersRouter = (io) => {
     /* GET containers. */
-    router.get('/', (req, res, next) => {
+    router.get('/', isAdmin, (req, res, next) => {
         docker.listContainers({ all: true }, (err, containers) => {
             res.locals.formatName = (str) => {
                 return str[0].split('/')[1];
@@ -22,20 +23,20 @@ const returnContainersRouter = (io) => {
                 res.render('containers',
                     {
                         containers: containers,
-                        images: listImages,
+                        images: listImages, userinfo: req.user
                     });
             });
         });
     });
 
-    router.get('/start/:id', (req, res, next) => {
+    router.get('/start/:id', isAdmin, (req, res, next) => {
         const container = docker.getContainer(req.params.id);
         container.start(null, (err, data) => {
             res.redirect('/containers');
         });
     });
 
-    router.get('/stop/:id', (req, res, next) => {
+    router.get('/stop/:id', isAdmin, (req, res, next) => {
         const container = docker.getContainer(req.params.id);
         container.stop(null, (err, data) => {
             res.redirect('/containers');
@@ -133,21 +134,21 @@ const returnContainersRouter = (io) => {
     app.use(express.static(__dirname + "/public"));
     app.use("data", express.static(__dirname + "/data"));
 
-    router.get('/console/:id', (req, res, next) => {
-        contenido = fs.readFileSync(__dirname + '/data/' + req.query.name + ".json", 'utf8', function (err, data) {
-            // Display the file content
-            console.log(data);
-        });
-        jsonObject = JSON.parse(contenido);
-        //console.log(jsonObject.questions);
-        res.render('terminal', { quizData: jsonObject.quizData, questions: jsonObject.questions });
-    });
+    // router.get('/console2/:id', isAdmin, (req, res, next) => {
+    //     contenido = fs.readFileSync(__dirname + '/data/' + req.query.name + ".json", 'utf8', function (err, data) {
+    //         // Display the file content
+    //         console.log(data);
+    //     });
+    //     jsonObject = JSON.parse(contenido);
+    //     //console.log(jsonObject.questions);
+    //     res.render('terminal', { quizData: jsonObject.quizData, questions: jsonObject.questions });
+    // });
 
-    router.get('/console2/:id', (req, res, next) => {
+    router.get('/console2/:id', isAdmin, (req, res, next) => {
         res.render('terminal2');
     });
 
-    router.get('/logs/:id', (req, res, next) => {
+    router.get('/logs/:id', isAdmin, (req, res, next) => {
         res.render('logs');
     });
 
@@ -203,31 +204,46 @@ const returnContainersRouter = (io) => {
         });
 
         socket.on("disconnect", () => {
-            console.log("Aquest client amb scoket marxa " + socket.id); // undefined
+            console.log("Aquest client amb socket marxa " + socket.id); // undefined
+            //Modiquem lastUpdate per indicar data finalitzacio sessio
+            Quiz.updateOne({sessionID: socket.id}, {sessionID: socket.id},function (err, docs) {
+                if (err) {
+                    console.log("Error en update end session")
+                    console.log(err)
+                }
+                else {
+                    console.log("Updated Docs : ", docs);
+                }
+            });
         });
 
         socket.on('postQuestion', function (data) {
             console.log("sha respost pregunta" + sessionID);
             //console.log(data);
             let quiz = new Quiz(data);
+            //const notaSobre100 = Math.round(100*quiz.nota/quiz.numTotalPoints)
+            //console.log("notasobre100", notaSobre100)
             Quiz.findOne({ sessionID: quiz.sessionID }, function (err, docs) {
                 if (err) {
                     console.log(err)
                 }
                 else {
-                    console.log("Result : ", docs);
+                    //console.log("Result : ", docs);
                     if (docs != null) {
                         console.log("Trobat!" + docs.sessionID)
                         const quizNoID = {
                             arrEncerts: quiz.arrEncerts,
-                            "datePosted": quiz.datePosted,
+                            'datePosted': quiz.datePosted,
                             'sessionID': quiz.sessionID,
                             'slugLaboratori': quiz.slugLaboratori,
                             'firstName': quiz.firstName,
                             'lastName': quiz.lastName,
                             'email': quiz.email,
+                            'numTotalPoints': quiz.numTotalPoints,
+                            'notaSobre': quiz.notaSobre,
                             'nota': quiz.nota
                           }
+                        console.log(quizNoID)
                         Quiz.updateOne({ sessionID: docs.sessionID },
                             quizNoID, function (err, docs) {
                                 if (err) {

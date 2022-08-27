@@ -1,206 +1,246 @@
 <% include include/header.html %>
-<div class="container" data-page="laboratoris">
-    <button onClick="window.location.reload();">Refresh Page</button>
-    <div id="demo"></div>
-    <div id="demo2"></div>
-    <script>
-        function decodeHtml(html) {
+    <div class="container" data-page="laboratoris">
+        <script>
+            function decodeHtml(html) {
                 var txt = document.createElement("textarea");
                 txt.innerHTML = html;
                 return txt.value;
-        }   
-        function countdown(element, minutes, seconds) {
-            // Fetch the display element
-            window[element] = document.getElementById('id'+element);
+            }
+            function countdown(element, hours, minutes, seconds) {
+                // Fetch the display element
+                console.log(hours);
+                console.log(minutes);
+                console.log(seconds);
+                window[element] = document.getElementById('id' + element);
+                // Set the timer
+                var x = setInterval(function () {
 
-            // Set the timer
-            var interval = setInterval(function() {
-                if(seconds == 0) {
-                    if(minutes == 0) {
-                        (window[element].innerHTML = "STOP!");     
+                    // Get today's date and time
+                    var now = new Date().getTime();
 
-                        clearInterval(interval);
-                        //socket.emit('stop', containerId);
-                        document.getElementById('con' + element).style.display = "none";
-                        document.getElementById('stop' + element).click();
-                        //location.reload();
-                        //return;
+                    // Find the distance between now and the count down date
+                    var distance = countDownDate - now;
+
+                    // Time calculations for days, hours, minutes and seconds
+                    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    if (days > 0) {
+                        var day_text = days + (days > 1 ? 'd' : 'd');
                     } else {
-                        minutes--;
-                        seconds = 60;
+                        var day_text = '';
                     }
-                }
 
-                if(minutes > 0) {
-                    var minute_text = minutes + (minutes > 1 ? 'm' : 'm');
-                } else {
-                    var minute_text = '';
-                }
+                    if (minutes => 0) {
+                        var minute_text = minutes + (minutes > 1 ? 'm' : 'm');
+                    } else {
+                        var minute_text = '';
+                    }
 
-                var second_text = seconds > 1 ? '' : '';
-                if (isNaN(seconds)){
-                    window[element].innerHTML = "STOP!"
-                    
-                    return;
-                }
-                window[element].innerHTML = minute_text + ' ' + seconds + 's ' + second_text + '';
-                seconds--;
-            }, 1000);
-        }
-    </script>
-    <table class="table table-bordered table-hover">
-        <thead>
-            <tr>
-                <th>LABORATORI<%= userinfo.id %></th>
-                <th>IMATGE</th>
-                <th>Size</th>
-                <th>Action</th>
-                <th>Completed</th>
-                <th>Countdown</th>
-            </tr>
-        </thead>
-        <tbody>fs
-        <%  for(var i in quizzes) { %> 
-            <tr>
-                <td><%= quizzes[i].title %> - <%= quizzes[i].cli %></td>
-                <td><%= quizzes[i].image %>-</td>
-                <td><%= quizzes[i].slug %> - <%= quizzes[i].questions %> - <%= quizzes[i].containerId %>-----<%= quizzes[i].numQuizzes %> -----<%= quizzes[i].maxNota %> </td>
-                <td>
-                 <% if (quizzes[i].containerId) { %>
-                 <a class="btn btn-primary btn-xs"
-                    id="con<%= quizzes[i].containerId %>" href="/laboratoris/console/<%= quizzes[i].containerId %>?name=<%= quizzes[i].slug2 %>">
-                     <span class="glyphicon glyphicon-console"></span> 
-                 </a>
-                 <!--
+                    if (hours > 0) {
+                        var hour_text = hours + (hours > 1 ? 'h' : 'h');
+                    } else {
+                        var hour_text = '';
+                    }
+
+
+                    if(isNaN(seconds)){
+                        window[element].innerHTML = "EXPIRED";
+                        return;
+                    }
+
+                    // Output the result in an element with id="demo"
+                    window[element].innerHTML = day_text + ' ' + hour_text + ' '
+                        + minutes + "m " + seconds + "s ";
+
+                    // If the count down is over, write some text 
+                    if (distance < 0) {
+                        clearInterval(x);
+                        window[element].innerHTML = "EXPIRED";
+                        //socket.emit('stop', '<%= containerId %>');
+                        //$("#questionari").fadeTo(1000, 0, function() { $("#questionari").remove(); });
+                    }
+                }, 1000);
+            }
+        </script>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>LABORATORI</th>
+                    <th>IMATGE</th>
+                    <th>Size</th>
+                    <th>Action</th>
+                    <th>Completed</th>
+                    <th>Tries</th>
+                    <th>Nota màx.</th>
+                    <th>Countdown</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(var i in quizzes) { %>
+                    <% if (quizzes[i].active==1  && !(Number(quizzes[i].numQuizzes) >= Number(quizzes[i].numMaxIntents))) { %>
+                        <tr class="text-dark font-weight-light">entar
+                            <% } else { %>
+                        <tr data-toggle="tooltip" title="Aquest laboratori no es troba actiu" class="text-muted">
+                            <% } %>
+                                <td>
+                                    <%= quizzes[i].title %> - <%= quizzes[i].cli %>
+                                </td>
+                                <td>
+                                    <%=quizzes[i].sha256%>---------<%= quizzes[i].image %>-
+                                </td>
+                                <td>
+                                    <%= quizzes[i].slug %> - <%= quizzes[i].questions %> - <%= quizzes[i].containerId %>
+                                </td>
+                                <td>
+                                    <% if (quizzes[i].containerId) { %>
+                                        <a class="btn btn-primary btn-xs" id="con<%= quizzes[i].containerId %>"
+                                            href="/laboratoris/console/<%= quizzes[i].containerId %>?name=<%= quizzes[i].slug2 %>">
+                                            <span class="glyphicon glyphicon-console"></span>
+                                        </a>
+                                        <!--
                  <a  onClick="restart('<%= quizzes[i].containerId %>', '<%= quizzes[i].image %>', '<%= quizzes[i].slug %>', '<%= quizzes[i].slug %>');" class="btn btn-warning btn-xs"
                     data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
                     href="#">
                      <span class="glyphicon glyphicon-play"></span> Restart
                  </a>
                  -->
-                 <a id="stop<%= quizzes[i].containerId %>" class="btn btn-warning btn-xs" onclick="stopContainer('<%= quizzes[i].containerId %>')"
-                       data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                       >
-                        <span class="glyphicon glyphicon-stop"></span> 
-                    </a>
-                   
-                  <% } else { %>
-                    <% if (quizzes[i].downloaded == true) { %>
-                         <!--
-                            <a href="/laboratoris/remove/<%=quizzes[i].sha256%>/<%=quizzes[i].containerId%>" id="<%= quizzes[i].containerId %>" class="btn btn-danger btn-xs" data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..." >
-                                <span class="glyphicon glyphicon-trash"></span> 
-                            </a>
-                           
+                                        <a id="stop<%= quizzes[i].containerId %>" class="btn btn-warning btn-xs"
+                                            onclick="stopContainer('<%= quizzes[i].containerId %>')"
+                                            data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting...">
+                                            <span class="glyphicon glyphicon-stop"></span>
+                                        </a>
+
+                                        <% } else { %>
+                                            <% if (quizzes[i].downloaded==true && quizzes[i].active==1  && !(Number(quizzes[i].numQuizzes) >= Number(quizzes[i].numMaxIntents))) { %>
+
+                                                <a href="/laboratoris/removeImage/sha256:<%=quizzes[i].sha256%>"
+                                                    id="<%= quizzes[i].containerId %>" class="btn btn-danger btn-xs"
+                                                    data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting...">
+                                                    <span class="glyphicon glyphicon-trash"></span>
+                                                </a>
+                                                <!--  
                             <a class="btn btn-success btn-xs"
                             data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
                             href="/laboratoris/start/<%= quizzes[i].sha256 %>">
                              <span class="glyphicon glyphicon-play"></span> Start
                          </a>
                          -->
-                         
-                        <a onclick="downloadImage('<%= quizzes[i].image %>', '<%= quizzes[i].slug %>')" data-toggle="tooltip" title="Hooray!" class="btn btn-success btn-xs"
-                            data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                            href="#">
-                             <span class="glyphicon glyphicon-play"></span> 
-                         </a>
-                    <% } else { %>
-                    <!--
-                    <a onclick="downloadImage('<%= quizzes[i].image %>', '<%= quizzes[i].slug %>')" class="btn btn-info btn-xs" data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..." href="#">
-                        <span class="glyphicon glyphicon-cloud-download"></span> Download
-                    </a>
-                    -->
-                     <% } %>
-                     <% } %>
-                </td>
-                <td>
-                    <progress id="file" max="100" value="70"> 70% </progress>70%
-                </td>
-                <td>
-                <% if (quizzes[i].containerId) { %>
-                    <span id="id<%=quizzes[i].containerId %>"></span>
-                    <script type="text/javascript">
-                        var id<%= quizzes[i].containerId %> = document.getElementById('id<%= quizzes[i].containerId %>');
-                        countDownDate = new Date(decodeHtml("<%= JSON.stringify(quizzes[i].timerTask) %>").replace(/['"]+/g, ''));
-                        var distance = countDownDate - new Date().getTime();
-                        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                        countdown("<%=quizzes[i].containerId %>", minutes, seconds);
-                     </script>
-                <% } %>
-            </td>
-            </tr>
-        <% } %>
-        </tbody>
-    </table>
-</div>
-<% include include/footer.html %>
-<script>
 
-    function restart(containerId, imagesName, slug){
-        console.log("init");
-        var host = window.location.origin;
-        var socket = io.connect(host);
-        socket.emit('restart', containerId, imagesName, slug);
-            socket.on('show', (data) => {
-            console.log(data);
-        });
-        socket.on('end', function(message) {
-            alert(message);
-            socket.disconnect();
-        });
-        socket.on('end', (status) => {
-            alert(status);
-            location.reload();
-        });
-    }
+                                                <a onclick="downloadImage('<%= quizzes[i].image %>', '<%= quizzes[i].slug %>')"
+                                                    data-toggle="tooltip" title="Hooray!" class="btn btn-success btn-xs"
+                                                    data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
+                                                    href="#">
+                                                    <span class="glyphicon glyphicon-play"></span>
+                                                </a>
+                                                <% } else if(quizzes[i].active==1  && !(Number(quizzes[i].numQuizzes) >= Number(quizzes[i].numMaxIntents))) { %>
+                                                    <a onclick="downloadImage('<%= quizzes[i].image %>', '<%= quizzes[i].slug %>')"
+                                                        class="btn btn-info btn-xs"
+                                                        data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
+                                                        href="#">
+                                                        <span class="glyphicon glyphicon-cloud-download"></span>
+                                                        Download
+                                                    </a>
 
-    
-    function downloadImage(imagesName, slug) {
-        console.log(slug);
-        $('.btn-success').addClass("disabled");
-        var host = window.location.origin;
-        var socket = io.connect(host);
-        socket.emit('pull', imagesName, slug, '<%= userinfo.id %>');
-            socket.on('show', (data) => {
-            console.log(data);
-        });
+                                                    <% } %>
+                                                        <% } %>
+                                </td>
+                                <td>
+                                    <progress id="file" max="100" value="70"> 70% </progress>70%
+                                </td>
+                                <td>
+                                    <%= quizzes[i].numQuizzes %> --- <%= quizzes[i].numMaxIntents %>
+                                </td>
+                                <td><span class="badge">
+                                        <%= quizzes[i].maxNota %>
+                                    </span></td>
+                                <td>
+                                    <% if (quizzes[i].containerId) { %>
+                                        <span class="glyphicon glyphicon-time"></span>
+                                        <span id="id<%=quizzes[i].containerId %>"></span>
+                                        <script type="text/javascript">
+                                            var id<%= quizzes[i].containerId %> = document.getElementById('id<%= quizzes[i].containerId %>');
+                                            countDownDate = new Date(decodeHtml("<%= JSON.stringify(quizzes[i].timerTask) %>").replace(/['"]+/g, ''));
+                                            var distance = countDownDate - new Date().getTime();
+                                            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                                            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                            countdown("<%=quizzes[i].containerId %>", hours, minutes, seconds);
+                                        </script>
+                                        <% } %>
+                                </td>
+                        </tr>
+                        <% } %>
+            </tbody>
+        </table>
+    </div>
+    <% include include/footer.html %>
+        <script>
+            function restart(containerId, imagesName, slug) {
+                console.log("init");
+                var host = window.location.origin;
+                var socket = io.connect(host);
+                socket.emit('restart', containerId, imagesName, slug);
+                socket.on('show', (data) => {
+                    console.log(data);
+                });
+                socket.on('end', function (message) {
+                    alert(message);
+                    socket.disconnect();
+                });
+                socket.on('end', (status) => {
+                    alert(status);
+                    location.reload();
+                });
+            }
 
-        socket.on('end', function(message) {
-            alert(message);
-            socket.disconnect();
-            location.reload();
-        });
-        socket.on('end', (status) => {
-            alert(status);
-            location.reload();
-        });
-    }
+            function downloadImage(imagesName, slug) {
+                console.log(slug);
+                $('.btn-success').addClass("disabled");
+                var host = window.location.origin;
+                var socket = io.connect(host);
+                socket.emit('pull', imagesName, slug, '<%= userinfo.id %>', '<%= userinfo.firstName %> <%= userinfo.lastName %>', '<%= userinfo.group %>');
+                socket.on('show', (data) => {
+                    console.log(data);
+                });
 
-    function stopContainer(containerId) {
-        console.log("stopContainer");
-        var host = window.location.origin;
-        var socket = io.connect(host);
-        socket.emit('stop', containerId);
-        
-        socket.on('end', function(message) {
-            alert(message);
-            socket.disconnect();
-            location.reload(true);
-        });
-        socket.on('end', (status) => {
-            alert(status);
-            location.reload(true);
-        });
-    }
+                socket.on('end', function (message) {
+                    alert(message);
+                    socket.disconnect();
+                    location.reload();
+                });
+                socket.on('end', (status) => {
+                    alert(status);
+                    location.reload();
+                });
+            }
 
-    $(document).ready(function () {
-        //alert($('a[id^="stop"]').length);
-        $('[data-toggle="tooltip"]').tooltip();  
-        if($('a[id^="stop"]').length != 0){
-            //alert($('.btn-success').length)
-            $('.btn-success').addClass("disabled");
-        }
-        
-    });
-    
-</script>
+            function stopContainer(containerId) {
+                console.log("stopContainer");
+                var host = window.location.origin;
+                var socket = io.connect(host);
+                socket.emit('stop', containerId);
+
+                socket.on('end', function (message) {
+                    alert(message);
+                    socket.disconnect();
+                    location.reload(true);
+                });
+                socket.on('end', (status) => {
+                    alert(status);
+                    location.reload(true);
+                });
+            }
+
+            $(document).ready(function () {
+                //alert($('a[id^="stop"]').length);
+                $('[data-toggle="tooltip"]').tooltip();
+                if ($('a[id^="stop"]').length != 0) {
+                    //alert($('.btn-success').length)
+                    $('.btn-success').addClass("disabled");
+                }
+            });
+
+        </script>

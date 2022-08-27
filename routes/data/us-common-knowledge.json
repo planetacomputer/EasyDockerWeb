@@ -3,7 +3,10 @@
         "title": "US Common KnowledaxLLLL",
         "slug": "us-common-knowledge",
         "image": "ubuntu:latest",
-        "sha256": "62aedd01bd85"
+        "sha256": "df5de72bdb3b",
+        "numMaxIntents": 3,
+        "active": 1,
+        "minutes": 5
     },
     "questions" : [
         {
@@ -77,7 +80,8 @@
               { "text": "Ubuntu", "correct": false },
               { "text": "Mint", "correct": false },
               { "text": "Lubuntu", "correct": false  }
-            ]
+            ],
+            "points": 3
           },
           {
               "id": 8,

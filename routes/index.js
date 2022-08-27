@@ -2,12 +2,6 @@ const router = require('express').Router();
 // const { auth } = require('../middlewares/auth')
 const { ensureAuth, ensureGuest } = require('../middlewares/auth')
 
-
-/* GET home page. */
-// router.get('/', (req, res, next) => {
-//     res.redirect('/laboratoris');
-// });
-
 router.get('/', (req, res) => {
     console.log("arrel /")
     if (req.isAuthenticated()){
@@ -24,6 +18,7 @@ router.get('/logout', (req, res, next) => {
     req.logout();
     req.session.isLogin = false;
     res.locals.isLogin = false;
+    //Seria interessant eliminar els seus labs
     res.redirect('/');
 });
 

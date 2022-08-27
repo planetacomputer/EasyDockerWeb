@@ -12,6 +12,7 @@
             <tr>
                 <th>Names</th>
                 <th>Image</th>
+                <th>User</th>
                 <th>Command</th>
                 <th>Port</th>
                 <th>State</th>
@@ -29,6 +30,9 @@
                 </td>
                 <td>
                     <%= container.Image %>
+                </td>
+                <td>
+                    <%= JSON.stringify(container.Labels.displayNameUsuari) %> - <%= JSON.stringify(container.Labels.group) %> - <%= JSON.stringify(container.Labels.quizSlug) %>
                 </td>
                 <td>
                     <%= container.Command %>
@@ -68,7 +72,7 @@
                     <% } %>
                     <a class="btn btn-primary btn-xs"
                        data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                       href="/containers/console/<%= container.Id %>">
+                       href="/containers/console2/<%= container.Id %>">
                         <span class="glyphicon glyphicon-console"></span> Console
                     </a>
                     <% } %>

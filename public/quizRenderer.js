@@ -50,7 +50,9 @@ function startQuiz() {
   answersContainer.classList.remove("hide");
   correctCount.classList.remove("hide");
   for(i = 0; i < questions.length; i++) {
-    $('#ariadnaThread').append('<div style="background-color: rgb(231, 126, 35);" class="item" id="item-'+ i +'" >' + (i+1) +  '</div>');
+    let pointsQuestion = questions[i].points;
+    pointsQuestion = (typeof pointsQuestion !== "undefined") ? pointsQuestion : '1';
+    $('#ariadnaThread').append('<div title="' + pointsQuestion + '" class="item pointsQuestion-' + pointsQuestion + '" id="item-'+ i +'" >' + (i+1) +  '</div>');
   }
   loadQuestion(currentQuestion);
   console.log(questions);
@@ -159,7 +161,7 @@ function updateDB(arrAciertos, puntos){
   console.log(arrAciertos)
   console.log(puntos)
   var mapQuiz = { sessionID: socket.id, slugLaboratori: quizData.slug, firstName: firstName, lastName: lastName,
-    email: email, nota: puntos, arrEncerts: arrAciertos }
+    email: email, nota: puntos, numTotalPoints: numTotalPoints, notaSobre: Math.round(100*puntos/numTotalPoints), arrEncerts: arrAciertos }
   socket.emit("postQuestion", mapQuiz);
 }
 
@@ -180,6 +182,7 @@ function checkAnswer(e, myCallback) {
         async: false
       })
       .done(function(data){
+        console.log(data)
           solucio = JSON.parse(data).var1;
       });
       console.log(quizData.slug.replace(".js", ""));

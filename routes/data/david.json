@@ -3,7 +3,9 @@
         "title": "CentOS US Common Knowledgeaa2",
         "slug": "david",
         "image": "centos:latest",
-        "sha256": "5d0da3dc9764"
+        "sha256": "5d0da3dc9764",
+        "active": 1,
+        "minutes": 60.1
     },
     "questions" : [
         {
@@ -16,7 +18,8 @@
               { "text": "Philadelphia", "correct": false },
               { "text": "Washington D.C.", "correct": true },
               { "text": "Chicago", "correct": false }
-            ]
+            ],
+            "points": 2
         },
         {
           "id": 2,
@@ -52,7 +55,8 @@
             "id": 5,
             "text": "Where was the first capital of the US?",
             "type": "txt",
-            "answers": ["Philadelphia"]
+            "answers": ["Philadelphia"],
+            "points": 4
           },
           {
             "id": 6,

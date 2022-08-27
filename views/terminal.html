@@ -105,6 +105,22 @@ button:active {
   font-weight: 900;
 }
 
+.pointsQuestion-1{
+  background-color: #f0cdad;
+}
+
+.pointsQuestion-2{
+  background-color: #ebb07c
+}
+
+.pointsQuestion-3{
+  background-color: #e77e23;
+}
+
+.pointsQuestion-4{
+  background-color: #c96104;
+}
+
 .btn-container {
   margin: 10px 0;
 }
@@ -175,7 +191,6 @@ div.itemSelected {
   .correct-count {
     float: none;
   }
-
 }
 </style>
 
@@ -201,7 +216,7 @@ div.itemSelected {
 
 </head>
 <body class="container">
-<div id="demo"></div>
+<div style="font-size: x-large" id="demo"></div>
 <a href="/laboratoris">Labs - <%= userinfo.displayName %></a>
 <div class="row row-no-gutters">
     <div id="quiz" class="col-sm-2">
@@ -326,10 +341,28 @@ var x = setInterval(function() {
   var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
   var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  if(days > 0) {
+      var day_text = days + (days > 1 ? 'd' : 'd');
+  } else {
+      var day_text = '';
+  }
+
+  if(minutes => 0) {
+      var minute_text = minutes + (minutes > 1 ? 'm' : 'm');
+  } else {
+      var minute_text = '';
+  }
+
+  if(hours > 0) {
+      var hour_text = hours + (hours > 1 ? 'h' : 'h');
+  } else {
+      var hour_text = '';
+  }
     
   // Output the result in an element with id="demo"
-  document.getElementById("demo").innerHTML = days + "d " + hours + "h "
-  + minutes + "m " + seconds + "s ";
+  document.getElementById("demo").innerHTML = day_text + ' ' + hour_text + ' '
+    + minutes + "m " + seconds + "s ";
     
   // If the count down is over, write some text 
   if (distance < 0) {

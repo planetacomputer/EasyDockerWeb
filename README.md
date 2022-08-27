@@ -98,3 +98,7 @@ email X
 nota X
 arrEncerts X
 datePosted X
+
+
+revisar puntuació dins terminal
+docker cgroups

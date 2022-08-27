@@ -7,7 +7,7 @@ const docker = new Docker();
 const schedule = require('node-schedule');
 const mongoose = require('mongoose');
 const Quiz = require('../models/Quiz');
-const { ensureAuth, ensureGuest } = require('../middlewares/auth')
+const { ensureAuth, ensureGuest, isAdmin } = require('../middlewares/auth')
 const userJobs = {};
 
 
@@ -46,14 +46,10 @@ router.get('/', ensureAuth, async (req, res, next) => {
         "email": req.user.email
       }
     },
-
     { $sort: { "nota": -1 } },
     { $sortByCount: "$slugLaboratori" }
   ]
   );
-
-  console.log("quizzesQuery")
-  console.log(quizzesQuery)
 
   quizzesQuery.forEach((meme) => {
     mapNumQuizzes.set(meme._id, meme.count);
@@ -66,26 +62,18 @@ router.get('/', ensureAuth, async (req, res, next) => {
       value: { $max: "$nota" }
     }
   }]);
-  console.log("maxNotaQuery")
-  console.log(maxNotaQuery)
   maxNotaQuery.forEach((meme) => {
     mapMaxNota.set(meme._id, meme.value);
   });
-  Object.keys(mapMaxNota).forEach(function (key) {
-    console.log("mapMaxNota")
-    console.log(obj[mapMaxNota])
-  });
-
 
   let quizFileDir = fs
     .readdirSync(__dirname + "/data")
     .filter((name) => name.endsWith(".json"));
 
-  console.log(userJobs);
 
-  Object.entries(userJobs).forEach(item => {
-    console.log(item[1].name + " - " + item[1].nextInvocation() + " - " + item[1].pendingInvocations);
-  })
+  // Object.entries(userJobs).forEach(item => {
+  //   console.log(item[1].name + " - " + item[1].nextInvocation() + " - " + item[1].pendingInvocations);
+  // })
 
   var listImages = docker.listImages(function (err, data) {
     data.forEach(element => {
@@ -98,6 +86,7 @@ router.get('/', ensureAuth, async (req, res, next) => {
     console.log("Log de l'arr repo ple: ");
     console.log(quizFileDir);
     console.log(req.user.id);
+    console.log(req.user.group);
     //Nomes ens interessen
     let opts = {
       "name": req.user.id,
@@ -148,12 +137,25 @@ router.get('/', ensureAuth, async (req, res, next) => {
           timerTask = userJobs[o["/" + req.user.id + "_" + quizFile.quizData.slug]].nextInvocation().toDate();
         console.log("timetask: " + timerTask)
       }
+      let sumTotalPuntsQuiz = 0;
+      for (let i = 0; i < quizFile.questions.length; i++) {
+        puntsQuestion = quizFile.questions[i].points
+        if (typeof puntsQuestion === 'undefined'){
+          sumTotalPuntsQuiz += 1 
+        }
+        else{
+          sumTotalPuntsQuiz += Number(puntsQuestion);
+        }
+      }
+      //const sum = quizFile.questions.points.reduce((a, b) => a + b, 0);
+      console.log("SUma de punts total quiz: ", sumTotalPuntsQuiz)
       //array amb tots d'objectes quizzes
       quizzes.push({
-        title: quizFile.quizData.title,
-        slug: file.replace(".json", ""),
-        slug2: quizFile.quizData.slug,
-        sha256: quizFile.quizData.sha256,
+        title: quizFile.quizData.title, //etiqueta titol de l'xml laboratori
+        slug: file.replace(".json", ""), //nom fitxer de l'xml laboratori, sense extensio
+        slug2: quizFile.quizData.slug, //slug nom de l'xml del laboratori
+        sha256: quizFile.quizData.sha256, //sha256 de la imatge
+        active: quizFile.quizData.active,
         image: quizFile.quizData.image,
         questions: quizFile.questions.length,
         downloaded: downloaded,
@@ -161,11 +163,11 @@ router.get('/', ensureAuth, async (req, res, next) => {
         cli: cliConsola,
         timerTask: timerTask,
         numQuizzes: mapNumQuizzes.get(file.replace(".json", "")),
-        maxNota: mapMaxNota.get(file.replace(".json", ""))
+        maxNota: mapMaxNota.get(file.replace(".json", "")),
+        sumTotalPuntsQuiz: sumTotalPuntsQuiz,
+        numMaxIntents: quizFile.quizData.numMaxIntents
       });
     }
-
-    console.log(mapMaxNota)
 
     res.render('laboratoris', { quizzes: quizzes, userinfo: req.user});
   });
@@ -184,7 +186,7 @@ const returnLaboratorisRouter = (io) => {
 
     });
 
-    socket.on('pull', (imageName, slug, userId) => {
+    socket.on('pull', (imageName, slug, userId, displayName, group) => {
 
       //Eliminem per seguretat tots els contenidors previs d'aquest usuari
       //Nomes pot tenir un contenidor en execucio
@@ -200,6 +202,7 @@ const returnLaboratorisRouter = (io) => {
       });
 
       docker.pull(imageName, (err, stream) => {
+
         var file = slug + ".json";
         var quizFile = requireUncached(`./data/` + file);
         var cliConsola = '/bin/bash';
@@ -226,8 +229,9 @@ const returnLaboratorisRouter = (io) => {
               Image: imageName,
               name: nomContenidor, //se ha de arreglar
               Labels: {
-                "environment": "blueWhale",
+                "group": group,
                 "idUsuari": userId,
+                "displayNameUsuari": displayName,
                 "quizSlug": slug
               },
               Tty: true,
@@ -242,8 +246,9 @@ const returnLaboratorisRouter = (io) => {
                   if (!err) {
                     runExec(container);
                     var id = container.id;
-                    //var date = new Date();
-                    var date = new Date(new Date().getTime() + minutes * 10000);
+                    console.log("minutes: " + minutes)
+                    var date = new Date(new Date().getTime() + minutes * 60000);
+                    console.log("taskdate", date)
                     userJobs[id] = schedule.scheduleJob(id, date, () => {
                       if (docker.getContainer(id) != null) {
                         console.log('Do something on scheduled date');
@@ -251,8 +256,8 @@ const returnLaboratorisRouter = (io) => {
                         container.stop().catch(function (e) { });
                       }
                     });
-                    console.log(data);
-                    socket.emit('end', 'hola');
+                    //console.log(data);
+                    //socket.emit('end', 'hola');
                   }
                 });
               }
@@ -350,7 +355,6 @@ const returnLaboratorisRouter = (io) => {
   router.get('/remove/:imageId?/:containerId?', (req, res, next) => {
 
     if (req.params.containerId) {
-      console.log("pso por aqui");
       const container = docker.getContainer(req.params.containerId);
       container.inspect().then(results => {
         const props = {
@@ -402,6 +406,22 @@ const returnLaboratorisRouter = (io) => {
       // }
       res.redirect("/laboratoris");
     }
+  });
+
+  //Eliminem la imatge des de l'apartat de Laboratoris
+  router.get('/removeImage/:id', isAdmin, (req, res, next) => {
+    let imageId = req.params.id;
+    if (imageId.indexOf(':') > 0) {
+        imageId = imageId.split(':')[1];
+    }
+    let image = docker.getImage(imageId);
+    image.remove({force: true}, (err, data) => {
+        if (err) {
+            res.render('error', {error: err, message: err.json.message});
+        } else {
+            res.redirect('/laboratoris');
+        }
+    });
   });
 
   router.get('/start/:id', (req, res, next) => {
