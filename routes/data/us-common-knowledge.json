@@ -4,9 +4,9 @@
         "slug": "us-common-knowledge",
         "image": "ubuntu:latest",
         "sha256": "df5de72bdb3b",
-        "numMaxIntents": 3,
+        "numMaxIntents": 4,
         "active": 1,
-        "minutes": 5
+        "minutes": 120
     },
     "questions" : [
         {

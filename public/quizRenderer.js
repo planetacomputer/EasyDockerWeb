@@ -6,6 +6,7 @@ var startBtn = document.querySelector(".start-btn"),
   result = document.getElementById("result"),
   numPreguntas =  document.getElementById("numPreguntas"),
   progressBar = document.getElementById("progressBar"),
+  textProgressBar = document.getElementById("textProgressBar"),
   correctCount = document.querySelector(".correct-count");
 let currentQuestion = 0;
 let correct = 0;
@@ -74,6 +75,9 @@ function loadQuestion(questionNum) {
     $('.item').remove();
     arrEncerts = new Array(questions.length);
     currentQuestion = 0;
+    var sobre100 = Math.round(100*numPoints/numTotalPoints)
+    numPreguntas.innerHTML = sobre100 + "/" + 100;
+    socket.emit('stop', containerId);
   } else {
     while (answersContainer.firstChild) {
       answersContainer.removeChild(answersContainer.firstChild);
@@ -200,6 +204,8 @@ function checkAnswer(e, myCallback) {
               puntsActuals = (typeof questions[currentQuestion].points !== "undefined") ? questions[currentQuestion].points : 1;
               numPoints = numPoints + puntsActuals;
               progressBar.value = numPoints;
+              progressBar.title = numPoints + " punts d'un total de " + numTotalPoints
+              textProgressBar.innerHTML = numPoints + "/" + numTotalPoints
               console.log("Punts actuals: " + puntsActuals);
               arrEncerts[(answersContainer.children[0].id)-1] = 1;
             }
@@ -227,6 +233,7 @@ function checkAnswer(e, myCallback) {
         puntsActuals = (typeof questions[currentQuestion].points !== "undefined") ? questions[currentQuestion].points : 1;
         numPoints = numPoints + puntsActuals;
         progressBar.value = numPoints;
+        progressBar.title = numPoints + " punts d'un total de " + numTotalPoints 
         arrEncerts[(answersContainer.children[0].id)-1] = 1;
         correct++;
         document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
@@ -251,6 +258,7 @@ function checkAnswer(e, myCallback) {
           numPoints = numPoints + puntsActuals;
           progressBar.value = numPoints;
           console.log("punts actuals chekc: " + puntsActuals);
+          progressBar.title = numPoints + " punts d'un total de " + numTotalPoints
           numPreguntas.innerHTML = correct + "/" + questions.length;
           document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
         }
@@ -270,7 +278,5 @@ function checkAnswer(e, myCallback) {
   }
   myCallback(arrEncerts, numPoints);
   console.log("PuntsFinsAlmomemnnt" + numPoints);
-  
-  //alert(numPoints);
 }
 

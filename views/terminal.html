@@ -121,6 +121,10 @@ button:active {
   background-color: #c96104;
 }
 
+#textProgressBar{
+  margin-left: 5px;
+}
+
 .btn-container {
   margin: 10px 0;
 }
@@ -207,8 +211,8 @@ div.itemSelected {
   var firstName = decodeHtml("<%= userinfo.firstName %>");
   var lastName = decodeHtml("<%= userinfo.lastName %>");
   var email = decodeHtml("<%= userinfo.email %>");
+  var containerId = decodeHtml("<%= containerId %>");
   
-  console.log(decodeHtml(questions));
   var questions = JSON.parse(questions2);
   var quizData = JSON.parse(quizData2);
   //alert(timerTask);
@@ -222,7 +226,7 @@ div.itemSelected {
     <div id="quiz" class="col-sm-2">
         <h1 class="quiz-title">Quiz Title</h1>
         <p class="correct-count hide">Correct:</p>
-        <div><progress id="progressBar" max="100" value="0"> 0% </progress></div>
+        <div><progress id="progressBar" max="100" value="0"> 0% </progress><span id="textProgressBar"></span></div>
         <div id="ariadnaThread"></div>
         <div id="questionari">
           <p class="question hide">Question</p>

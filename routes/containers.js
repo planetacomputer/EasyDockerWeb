@@ -129,20 +129,10 @@ const returnContainersRouter = (io) => {
     });
 
     const fs = require("fs");
-    let jsonObject;
+    //let jsonObject;
 
     app.use(express.static(__dirname + "/public"));
     app.use("data", express.static(__dirname + "/data"));
-
-    // router.get('/console2/:id', isAdmin, (req, res, next) => {
-    //     contenido = fs.readFileSync(__dirname + '/data/' + req.query.name + ".json", 'utf8', function (err, data) {
-    //         // Display the file content
-    //         console.log(data);
-    //     });
-    //     jsonObject = JSON.parse(contenido);
-    //     //console.log(jsonObject.questions);
-    //     res.render('terminal', { quizData: jsonObject.quizData, questions: jsonObject.questions });
-    // });
 
     router.get('/console2/:id', isAdmin, (req, res, next) => {
         res.render('terminal2');

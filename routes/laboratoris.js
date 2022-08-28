@@ -57,11 +57,14 @@ router.get('/', ensureAuth, async (req, res, next) => {
   
 
   const maxNotaQuery = await Quiz.aggregate([{
+    $match: { "email": req.user.email },
+    },
+    {
     $group: {
       _id: "$slugLaboratori",
-      value: { $max: "$nota" }
+      value: { $max: "$notaSobre" }
     }
-  }]);
+    }]);
   maxNotaQuery.forEach((meme) => {
     mapMaxNota.set(meme._id, meme.value);
   });
@@ -69,11 +72,6 @@ router.get('/', ensureAuth, async (req, res, next) => {
   let quizFileDir = fs
     .readdirSync(__dirname + "/data")
     .filter((name) => name.endsWith(".json"));
-
-
-  // Object.entries(userJobs).forEach(item => {
-  //   console.log(item[1].name + " - " + item[1].nextInvocation() + " - " + item[1].pendingInvocations);
-  // })
 
   var listImages = docker.listImages(function (err, data) {
     data.forEach(element => {

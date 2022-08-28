@@ -2,11 +2,11 @@
     "quizData": {
         "title": "Laboratori Usuaris Linux Busybox",
         "slug": "david-copy2",
-        "image": "busybox:latest",
+        "image": "containerstack/alpine-stress:latest",
         "sha256": "62aedd01bd85",
         "cli": "/bin/sh",
         "numMaxIntents": 2,
-        "minutes": 40,
+        "minutes": 10,
         "active": 1    
     },
     "questions" : [

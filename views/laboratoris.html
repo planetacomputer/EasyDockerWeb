@@ -72,7 +72,6 @@
                     <th>IMATGE</th>
                     <th>Size</th>
                     <th>Action</th>
-                    <th>Completed</th>
                     <th>Tries</th>
                     <th>Nota màx.</th>
                     <th>Countdown</th>
@@ -81,7 +80,7 @@
             <tbody>
                 <% for(var i in quizzes) { %>
                     <% if (quizzes[i].active==1  && !(Number(quizzes[i].numQuizzes) >= Number(quizzes[i].numMaxIntents))) { %>
-                        <tr class="text-dark font-weight-light">entar
+                        <tr class="text-dark font-weight-light">
                             <% } else { %>
                         <tr data-toggle="tooltip" title="Aquest laboratori no es troba actiu" class="text-muted">
                             <% } %>
@@ -147,15 +146,16 @@
                                                     <% } %>
                                                         <% } %>
                                 </td>
-                                <td>
-                                    <progress id="file" max="100" value="70"> 70% </progress>70%
+                                <td><% if (quizzes[i].numQuizzes && quizzes[i].numMaxIntents) { %>
+                                    <span class="badge">
+                                        <%= quizzes[i].numQuizzes %> / <%= quizzes[i].numMaxIntents %>
+                                    </span>
+                                    <% } %>
                                 </td>
-                                <td>
-                                    <%= quizzes[i].numQuizzes %> --- <%= quizzes[i].numMaxIntents %>
-                                </td>
-                                <td><span class="badge">
-                                        <%= quizzes[i].maxNota %>
-                                    </span></td>
+                                <td><% if (quizzes[i].maxNota) { %>
+                                    <span class="badge">    
+                                        <%= quizzes[i].maxNota %> / 100
+                                    </span><% } %></td>
                                 <td>
                                     <% if (quizzes[i].containerId) { %>
                                         <span class="glyphicon glyphicon-time"></span>
