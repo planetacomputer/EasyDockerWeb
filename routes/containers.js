@@ -186,11 +186,15 @@ const returnContainersRouter = (io) => {
                 comanda = jsonObject.questions[data.currentQuestion].post;
                 console.log(comanda);
             }
+            
             myContainer.exec(['/bin/sh', '-c', comanda], { stdout: true }, (err, results) => {
                 if (err) return;
                 console.log(results.stdout);
-                socket.emit('returnDrawerResponse', results.stdout);
+                if (data.tipus != "post"){
+                    socket.emit('returnDrawerResponse', results.stdout);
+                }
             });
+            
         });
 
         socket.on("disconnect", () => {
@@ -258,19 +262,6 @@ const returnContainersRouter = (io) => {
                 }
             });
 
-        });
-
-        socket.on('encert', function (data) {
-            //console.log(data);
-            //console.log(data.idContainer);
-            const myContainer = dockerExec.getContainer(data.idContainer);
-            myContainer.exec(['echo', 'goodbye world'], { stdout: true }, (err, results) => {
-                //console.log(results.stdout);
-            });
-            myContainer.exec(['/bin/sh', '-c', '/tmp/hola.sh'], { stdout: true }, (err, results) => {
-                //console.log(results.stdout);
-                socket.emit('returnDrawerResponse', results.stdout);
-            });
         });
 
         socket.on('exec', (id, w, h) => {

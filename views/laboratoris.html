@@ -1,4 +1,4 @@
-<% include include/header.html %>
+<%- include ('include/header.html') -%>
     <div class="container" data-page="laboratoris">
         <script>
             function decodeHtml(html) {
@@ -65,16 +65,15 @@
                 }, 1000);
             }
         </script>
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover table-striped">
             <thead>
                 <tr>
-                    <th>LABORATORI</th>
-                    <th>IMATGE</th>
-                    <th>Size</th>
+                    <th>Laboratori</th>
+                    <th>Sistema operatiu</th>
                     <th>Action</th>
-                    <th>Tries</th>
+                    <th>Intents</th>
                     <th>Nota màx.</th>
-                    <th>Countdown</th>
+                    <th>Temps restant</th>
                 </tr>
             </thead>
             <tbody>
@@ -82,16 +81,13 @@
                     <% if (quizzes[i].active==1  && !(Number(quizzes[i].numQuizzes) >= Number(quizzes[i].numMaxIntents))) { %>
                         <tr class="text-dark font-weight-light">
                             <% } else { %>
-                        <tr data-toggle="tooltip" title="Aquest laboratori no es troba actiu" class="text-muted">
+                        <tr data-toggle="tooltip" title="Aquest laboratori no es troba actiu o be has superat el maxim nombre d'intents" class="text-muted">
                             <% } %>
-                                <td>
+                                <td title="<%= quizzes[i].slug %>">
                                     <%= quizzes[i].title %> - <%= quizzes[i].cli %>
                                 </td>
-                                <td>
-                                    <%=quizzes[i].sha256%>---------<%= quizzes[i].image %>-
-                                </td>
-                                <td>
-                                    <%= quizzes[i].slug %> - <%= quizzes[i].questions %> - <%= quizzes[i].containerId %>
+                                <td title="<%= quizzes[i].sha256 %>">
+                                    <%= quizzes[i].image %>
                                 </td>
                                 <td>
                                     <% if (quizzes[i].containerId) { %>
@@ -114,12 +110,13 @@
 
                                         <% } else { %>
                                             <% if (quizzes[i].downloaded==true && quizzes[i].active==1  && !(Number(quizzes[i].numQuizzes) >= Number(quizzes[i].numMaxIntents))) { %>
-
+                                                <% if (userinfo.role == 'admin') { %>
                                                 <a href="/laboratoris/removeImage/sha256:<%=quizzes[i].sha256%>"
                                                     id="<%= quizzes[i].containerId %>" class="btn btn-danger btn-xs"
                                                     data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting...">
                                                     <span class="glyphicon glyphicon-trash"></span>
                                                 </a>
+                                                <% } %>
                                                 <!--  
                             <a class="btn btn-success btn-xs"
                             data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
@@ -135,6 +132,7 @@
                                                     <span class="glyphicon glyphicon-play"></span>
                                                 </a>
                                                 <% } else if(quizzes[i].active==1  && !(Number(quizzes[i].numQuizzes) >= Number(quizzes[i].numMaxIntents))) { %>
+                                                    <% if (userinfo.role == 'admin') { %>
                                                     <a onclick="downloadImage('<%= quizzes[i].image %>', '<%= quizzes[i].slug %>')"
                                                         class="btn btn-info btn-xs"
                                                         data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
@@ -142,7 +140,7 @@
                                                         <span class="glyphicon glyphicon-cloud-download"></span>
                                                         Download
                                                     </a>
-
+                                                    <% } %>
                                                     <% } %>
                                                         <% } %>
                                 </td>
@@ -176,7 +174,7 @@
             </tbody>
         </table>
     </div>
-    <% include include/footer.html %>
+    <%- include ('include/footer.html') -%>
         <script>
             function restart(containerId, imagesName, slug) {
                 console.log("init");

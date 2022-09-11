@@ -5,7 +5,8 @@
         "image": "centos:latest",
         "sha256": "5d0da3dc9764",
         "active": 1,
-        "minutes": 60.1
+        "minutes": 60.1,
+        "cli": "/bin/bash"
     },
     "questions" : [
         {

@@ -3,7 +3,7 @@
         "title": "Laboratori Usuaris Linux Busybox",
         "slug": "david-copy2",
         "image": "containerstack/alpine-stress:latest",
-        "sha256": "62aedd01bd85",
+        "sha256": "759fa7c836fb",
         "cli": "/bin/sh",
         "numMaxIntents": 2,
         "minutes": 10,

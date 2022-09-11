@@ -75,6 +75,14 @@ button:active {
   padding: 20px;
 }
 
+.backMenu{
+    font-size: x-large;
+    background-color: #f9eee3;
+    border-radius: 3px;
+    line-height: 1.5em;
+    font-family: 'Courier New', Courier, monospace;
+}
+
 .quizzes {
   text-align: center;
   margin: 10px 0;
@@ -102,7 +110,10 @@ button:active {
 }
 
 .question {
-  font-weight: 900;
+  background-color: #f4f2f0;
+  border-radius: 3px;
+  line-height: 1.5em;
+  font-family: sans-serif;
 }
 
 .pointsQuestion-1{
@@ -134,7 +145,7 @@ input[type="text"] {
   border: 1px solid #ccc;
   font-family: Lato, sans-serif;
   padding: 10px;
-  float: left;
+  clear: both;
   display: block;
   width: 70%;
   height: 40px;
@@ -166,6 +177,7 @@ input[type="text"] {
   align-items: stretch; 
   flex-wrap: wrap; 
   align-content: flex-start;
+  margin-top: 30px;
 }
 
 div.item {
@@ -181,6 +193,28 @@ div.item {
 
 div.itemSelected {
   border: 2px solid #333;
+}
+
+button.next-btn{
+    background-color: rgb(251, 181, 134);
+    color:rgb(87, 59, 59);
+    font-weight: bold;
+}
+
+#countdown{
+  display:none; 
+  border: 1px solid black; 
+  float: right; 
+  padding: 2px; 
+  background-color: rgb(239, 212, 154); 
+  font-family: 'Courier New', Courier, monospace; 
+  border-radius: 15%;
+}
+
+#numPreguntas{
+  font-family: 'Courier New', Courier, monospace; 
+  font-size: 22px;
+  background-color: #ecf3ff;
 }
 
 @media screen and (max-width: 894px) {
@@ -220,13 +254,13 @@ div.itemSelected {
 
 </head>
 <body class="container">
-<div style="font-size: x-large" id="demo"></div>
-<a href="/laboratoris">Labs - <%= userinfo.displayName %></a>
+<a class="backMenu" href="/laboratoris"> < Labs-<%= userinfo.displayName %></a>
 <div class="row row-no-gutters">
     <div id="quiz" class="col-sm-2">
         <h1 class="quiz-title">Quiz Title</h1>
         <p class="correct-count hide">Correct:</p>
-        <div><progress id="progressBar" max="100" value="0"> 0% </progress><span id="textProgressBar"></span></div>
+        <div><progress id="progressBar" max="100" value="0"> 0% </progress><span id="textProgressBar"></span>
+          <div id="countdown"></div></div>
         <div id="ariadnaThread"></div>
         <div id="questionari">
           <p class="question hide">Question</p>
@@ -240,8 +274,8 @@ div.itemSelected {
           </div>
           <div class="btn-container">
             <div id="numPreguntas"></div>
-            <button class="start-btn">Start</button>
-            <button class="next-btn hide">Next</button>
+            <button class="start-btn">START</button>
+            <button class="next-btn hide">NEXT ></button>
             <span id="result" class="result"></span>
           </div>
         </div>
@@ -364,14 +398,15 @@ var x = setInterval(function() {
       var hour_text = '';
   }
     
-  // Output the result in an element with id="demo"
-  document.getElementById("demo").innerHTML = day_text + ' ' + hour_text + ' '
+  // Output the result in an element with id="countdown"
+  document.getElementById("countdown").style.display = "block";
+  document.getElementById("countdown").innerHTML = day_text + ' ' + hour_text + ' '
     + minutes + "m " + seconds + "s ";
     
   // If the count down is over, write some text 
   if (distance < 0) {
     clearInterval(x);
-    document.getElementById("demo").innerHTML = "EXPIRED";
+    document.getElementById("countdown").innerHTML = "EXPIRED";
     socket.emit('stop', '<%= containerId %>');
     $("#questionari").fadeTo(1000, 0, function() { $("#questionari").remove(); });
   }

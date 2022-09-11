@@ -101,4 +101,17 @@ datePosted X
 
 
 revisar puntuació dins terminal
-docker cgroups
+
+git clone https://github.com/planetacomputer/EasyDockerWeb.git
+
+add .env file
+
+npm install (tested with node.js v17.3.1)
+
+docker run --rm -p 3000:3000 -v /home/dani/Documents/EasyDockerWeb/:/src -v /var/run/docker.sock:/var/run/docker.sock planetacomputer/easy-docker-web
+---
+You can create your own image from the project code folder:
+docker build -t easy-docker-web2 .
+Then you can run the container without sharing the code folder:
+docker run --rm -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock easy-docker-web2
+

@@ -83,8 +83,6 @@ router.get('/', ensureAuth, async (req, res, next) => {
 
     console.log("Log de l'arr repo ple: ");
     console.log(quizFileDir);
-    console.log(req.user.id);
-    console.log(req.user.group);
     //Nomes ens interessen
     let opts = {
       "name": req.user.id,
@@ -99,9 +97,9 @@ router.get('/', ensureAuth, async (req, res, next) => {
 
           //Introduim aquest container al llistat amb key user.id i valor quiz.slug
           //imagesContainers[container.Names[0]] = container.Id;
-          console.log("Nom container: " + container.Names[0])
+          //console.log("Nom container: " + container.Names[0])
           o[container.Names[0]] = container.Id;
-          console.log(o);
+          //console.log(o);
         });
       }
     });
@@ -116,7 +114,7 @@ router.get('/', ensureAuth, async (req, res, next) => {
         cliConsola = quizFile.quizData.cli;
       }
       // console.log(downloaded);
-      console.log(quizFile.quizData.slug);
+      //console.log(quizFile.quizData.slug);
       // console.log(imagesContainers);
       let timerTask;
       //if (typeof userJobs[o["/" + req.user.id + "_" + quizFile.quizData.slug]] !== 'undefined') {
@@ -124,10 +122,10 @@ router.get('/', ensureAuth, async (req, res, next) => {
       //console.log(timerTask);
       //}
       containerId = "";
-      console.log(o)
-      console.log(req.user.id + "_" + quizFile.quizData.slug)
-      console.log(quizFile.quizData.image + "_________" + quizFile.quizData.slug)
-      console.log(o.hasOwnProperty("/" + req.user.id + "_" + quizFile.quizData.slug))
+      // console.log(o)
+      // console.log(req.user.id + "_" + quizFile.quizData.slug)
+      // console.log(quizFile.quizData.image + "_________" + quizFile.quizData.slug)
+      // console.log(o.hasOwnProperty("/" + req.user.id + "_" + quizFile.quizData.slug))
       nomCont = "/" + req.user.id + "_" + quizFile.quizData.slug
       if (nomCont in o) {
         containerId = o["/" + req.user.id + "_" + quizFile.quizData.slug]
@@ -146,7 +144,7 @@ router.get('/', ensureAuth, async (req, res, next) => {
         }
       }
       //const sum = quizFile.questions.points.reduce((a, b) => a + b, 0);
-      console.log("SUma de punts total quiz: ", sumTotalPuntsQuiz)
+      //console.log("SUma de punts total quiz: ", sumTotalPuntsQuiz)
       //array amb tots d'objectes quizzes
       quizzes.push({
         title: quizFile.quizData.title, //etiqueta titol de l'xml laboratori
@@ -177,7 +175,7 @@ const returnLaboratorisRouter = (io) => {
     socket.on('stop', (containerId) => {
       const container = docker.getContainer(containerId);
       container.stop(null, (err, data) => {
-        console.log("Aturem contenidori " + container.id);
+        //console.log("Aturem contenidori " + container.id);
         socket.emit('end', 'stoppedContainer' + container.id);
         delete userJobs[container.id];
       });
@@ -194,7 +192,7 @@ const returnLaboratorisRouter = (io) => {
       };
       docker.listContainers(optionsStop, function (err, containers) {
         containers.forEach(function (containerInfo) {
-          console.log("Aturem aquest contenidor de lusuari: " + containerInfo.Id)
+          // console.log("Aturem aquest contenidor de lusuari: " + containerInfo.Id)
           docker.getContainer(containerInfo.Id).stop();
         });
       });
@@ -233,7 +231,7 @@ const returnLaboratorisRouter = (io) => {
                 "quizSlug": slug
               },
               Tty: true,
-              Cmd: [cliConsola],
+              Cmd: cliConsola,
               AutoRemove: true,
               Memory: 40000000,
               Cpus: 0.05,
@@ -244,18 +242,16 @@ const returnLaboratorisRouter = (io) => {
                   if (!err) {
                     runExec(container);
                     var id = container.id;
-                    console.log("minutes: " + minutes)
+                    // console.log("minutes: " + minutes)
                     var date = new Date(new Date().getTime() + minutes * 60000);
-                    console.log("taskdate", date)
+                    // console.log("taskdate", date)
                     userJobs[id] = schedule.scheduleJob(id, date, () => {
                       if (docker.getContainer(id) != null) {
-                        console.log('Do something on scheduled date');
+                        // console.log('Do something on scheduled date');
                         delete userJobs[id];
                         container.stop().catch(function (e) { });
                       }
                     });
-                    //console.log(data);
-                    //socket.emit('end', 'hola');
                   }
                 });
               }
@@ -302,7 +298,7 @@ const returnLaboratorisRouter = (io) => {
 
   router.get('/stop/:imageId', (req, res, next) => {
     const container = docker.getContainer(req.params.imageId);
-    console.log("Aturem contenidor " + container.id);
+    // console.log("Aturem contenidor " + container.id);
     container.stop(null, (err, data) => {
       res.redirect('/laboratoris');
     });
@@ -318,7 +314,6 @@ const returnLaboratorisRouter = (io) => {
       }
       else {
         if (data.Config.Labels.idUsuari != req.user.id) {
-          console.log("comparacio userId containerlabel")
           diffUser = true;
         }
 
@@ -335,7 +330,7 @@ const returnLaboratorisRouter = (io) => {
         }
         contenido = fs.readFileSync(__dirname + '/data/' + req.query.name + ".json", 'utf8', function (err, data) {
           // Display the file content
-          console.log(data);
+          // console.log(data);
         });
         jsonObject = JSON.parse(contenido);
         //console.log(jsonObject.questions);
@@ -359,24 +354,24 @@ const returnLaboratorisRouter = (io) => {
           ExitCode: results.State.ExitCode,
           imageId: results.Image
         }
-        console.log(props.ExitCode);
-        console.log("Id extraidos" + container);
+        // console.log(props.ExitCode);
+        // console.log("Id extraidos" + container);
 
-        console.log(container.id);
+        // console.log(container.id);
         let imageId = props.imageId;
-        console.log("imageId: " + imageId);
+        // console.log("imageId: " + imageId);
         let image = docker.getImage(imageId);
         //console.log(image);
         //console.log(imagesContainers);
-        for (var key in imagesContainers) {
-          if (imagesContainers.hasOwnProperty(key)) {
-            // Printing Keys
-            console.log(key);
-            if (imagesContainers[key] == imageId) {
-              console.log("coincide" + imagesContainers[key]);
-            }
-          }
-        }
+        // for (var key in imagesContainers) {
+        //   if (imagesContainers.hasOwnProperty(key)) {
+        //     // Printing Keys
+        //     //console.log(key);
+        //     // if (imagesContainers[key] == imageId) {
+        //     //   console.log("coincide" + imagesContainers[key]);
+        //     // }
+        //   }
+        // }
 
         container.remove({ force: true }, (err, data) => {
           if (err) {
@@ -396,9 +391,9 @@ const returnLaboratorisRouter = (io) => {
       });
     }
     else if (req.params.imageId) {
-      console.log("Esborrem imatge");
+      // console.log("Esborrem imatge");
       let image = docker.getImage(req.params.imageId)
-      console.log(image)
+      // console.log(image)
       // if (image !== null){
       //   image.remove({ force: true });
       // }
@@ -436,7 +431,7 @@ const returnLaboratorisRouter = (io) => {
 
 function runExec(container) {
   var options = {
-    //Cmd: ['/bin/bash'],
+    Cmd: ['/bin/bash'],
     //Env: ['VAR=ttslkfjsdalkfj'],
     AttachStdout: true,
     AttachStderr: true

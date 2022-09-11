@@ -4,10 +4,10 @@ var startBtn = document.querySelector(".start-btn"),
   answersContainer = document.querySelector(".q-container"),
   quizTitleElement = document.querySelector(".quiz-title"),
   result = document.getElementById("result"),
-  numPreguntas =  document.getElementById("numPreguntas"),
+  //numPreguntas =  document.getElementById("numPreguntas"),
   progressBar = document.getElementById("progressBar"),
-  textProgressBar = document.getElementById("textProgressBar"),
-  correctCount = document.querySelector(".correct-count");
+  textProgressBar = document.getElementById("textProgressBar");
+  //correctCount = document.querySelector(".correct-count");
 let currentQuestion = 0;
 let correct = 0;
 
@@ -17,7 +17,7 @@ var socket = io.connect(host);
 
 window.addEventListener("load", () => {
   quizTitleElement.innerHTML = quizData.title;
-  numPreguntas.innerHTML = questions.length;
+  //numPreguntas.innerHTML = questions.length;
 });
 
 startBtn.addEventListener("click", () => {
@@ -49,7 +49,7 @@ function startQuiz() {
   nextBtn.classList.remove("hide");
   questionElement.classList.remove("hide");
   answersContainer.classList.remove("hide");
-  correctCount.classList.remove("hide");
+  //correctCount.classList.remove("hide");
   for(i = 0; i < questions.length; i++) {
     let pointsQuestion = questions[i].points;
     pointsQuestion = (typeof pointsQuestion !== "undefined") ? pointsQuestion : '1';
@@ -61,7 +61,7 @@ function startQuiz() {
 
 function loadQuestion(questionNum) {
   console.log("carrega quest"+ questionNum);
-  numPreguntas.innerHTML = correct + "/" + questions.length;
+  //numPreguntas.innerHTML = correct + "/" + questions.length;
 
   result.innerHTML = "";
   if (currentQuestion === questions.length) {
@@ -71,19 +71,19 @@ function loadQuestion(questionNum) {
     answersContainer.classList.add("hide");
     //startBtn.innerHTML = "Restart";
     correct = 0;
-    correctCount.innerHTML = `Correct: ${correct}/${questions.length}`;
+    //correctCount.innerHTML = `Correct: ${correct}/${questions.length}`;
     $('.item').remove();
     arrEncerts = new Array(questions.length);
     currentQuestion = 0;
     var sobre100 = Math.round(100*numPoints/numTotalPoints)
-    numPreguntas.innerHTML = sobre100 + "/" + 100;
+    numPreguntas.innerHTML ="Puntuació final: " + sobre100 + "/" + 100;
     socket.emit('stop', containerId);
   } else {
     while (answersContainer.firstChild) {
       answersContainer.removeChild(answersContainer.firstChild);
     }
     answersContainer.dataset.type = null;
-    questionElement.innerHTML = questions[questionNum].id + " " + questions[questionNum].text;
+    questionElement.innerHTML = questions[questionNum].text;
     // Question types
     var btnGrid = document.createElement("div");
     btnGrid.setAttribute("id", questions[questionNum].id);
@@ -133,7 +133,7 @@ function loadQuestion(questionNum) {
       answersContainer.appendChild(checkBtn);
       answersContainer.dataset.type = "check";
     }
-    correctCount.innerHTML = `Correct: ${correct}`;
+    //correctCount.innerHTML = `Correct: ${correct}`;
   }
 
   if (currentQuestion != 0) {
@@ -147,10 +147,15 @@ function loadQuestion(questionNum) {
       }
     }
 
-    console.log(questions[questionNum].pre);
+  console.log(questions[questionNum].pre);
   if(questions[questionNum].pre !== undefined){
-    console.log("El slug es " + quizData.slug);
     socket.emit('execQuiz', {tipus: "pre", currentQuestion: currentQuestion, idContainer: id, slug: quizData.slug }, (response) => {
+      socket.removeAllListeners();
+      socket.disconnect();
+    });
+  }
+  if(questionNum > 0 && questions[questionNum-1].post !== undefined){
+    socket.emit('execQuiz', {tipus: "post", currentQuestion: currentQuestion-1, idContainer: id, slug: quizData.slug }, (response) => {
       socket.removeAllListeners();
       socket.disconnect();
     });
@@ -186,7 +191,7 @@ function checkAnswer(e, myCallback) {
         async: false
       })
       .done(function(data){
-        console.log(data)
+        //console.log(data)
           solucio = JSON.parse(data).var1;
       });
       console.log(quizData.slug.replace(".js", ""));
@@ -219,7 +224,7 @@ function checkAnswer(e, myCallback) {
         }
 
         });
-      numPreguntas.innerHTML = correct + "/" + questions.length;
+      //numPreguntas.innerHTML = correct + "/" + questions.length;
       break;
 
     case "txt":
@@ -234,6 +239,7 @@ function checkAnswer(e, myCallback) {
         numPoints = numPoints + puntsActuals;
         progressBar.value = numPoints;
         progressBar.title = numPoints + " punts d'un total de " + numTotalPoints 
+        textProgressBar.innerHTML = numPoints + "/" + numTotalPoints
         arrEncerts[(answersContainer.children[0].id)-1] = 1;
         correct++;
         document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
@@ -249,21 +255,23 @@ function checkAnswer(e, myCallback) {
         socket.removeAllListeners();
         socket.disconnect();
       });
-      socket.on('returnDrawerResponse', function(message) {
+      socket.once('returnDrawerResponse', function(message) {
+        console.log("REsponse message exec quiz" + message)
         if (message.trim() === "0"){
           correct++;
-          //result.innerHTML = "correct";
           arrEncerts[(answersContainer.children[0].id)-1] = 1;
           puntsActuals = (typeof questions[currentQuestion].points !== "undefined") ? questions[currentQuestion].points : 1;
+          console.log("puntsActuals: " + puntsActuals)
+          console.log("numPoints: " + numPoints)
           numPoints = numPoints + puntsActuals;
           progressBar.value = numPoints;
-          console.log("punts actuals chekc: " + puntsActuals);
+          console.log("punts actuals check: " + puntsActuals);
           progressBar.title = numPoints + " punts d'un total de " + numTotalPoints
-          numPreguntas.innerHTML = correct + "/" + questions.length;
+          textProgressBar.innerHTML = numPoints + "/" + numTotalPoints
+          //numPreguntas.innerHTML = correct + "/" + questions.length;
           document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "green";
         }
         else{
-          //result.innerHTML = "wrong";
           arrEncerts[(answersContainer.children[0].id)-1] = 0;
           document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "red";
         }

@@ -1,0 +1,131 @@
+{
+  "quizData": {
+      "title": "ESSENTIAL COMMANDS",
+      "slug": "essential-commands",
+      "image": "ubuntu:latest",
+      "sha256": "df5de72bdb3b",
+      "numMaxIntents": 24,
+      "active": 1,
+      "minutes": 120,
+      "cli": "/bin/bash"
+  },
+  "questions" : [
+          {
+            "id": 1,
+            "text": "What is the top-level directory in Linux?",
+            "type": "mc",
+            "answers": [
+                { "text": "bin", "correct": false },
+                { "text": "usr", "correct": false },
+                { "text": "home", "correct": false },
+                { "text": "/", "correct": true }
+              ],
+              "points": 1
+          },
+          {
+            "id": 2,
+            "text": "In what form does Linux organise files and directories?",
+            "type": "mc",
+            "answers": [
+              { "text": "libraries", "correct": false },
+              { "text": "links", "correct": false },
+              { "text": "filesystem tree", "correct": true },
+              { "text": "branches", "correct": false }
+            ],
+            "points": 1
+        },
+        {
+          "id": 3,
+          "text": "What is the command to print your current working directory?",
+          "type": "mc",
+          "answers": [
+            { "text": "ls", "correct": false },
+            { "text": "printf", "correct": false },
+            { "text": "pwd", "correct": true },
+            { "text": "cd", "correct": false }
+          ],
+          "points": 1
+        },
+          {
+            "id": 4,
+            "text": "What is the command to climb up one directory?",
+            "type": "mc",
+            "answers": [
+              { "text": "cd ..", "correct": true },
+              { "text": "cd /", "correct": false },
+              { "text": "cd ~", "correct": false },
+              { "text": "cd -", "correct": false }
+            ],
+            "points": 1
+          },
+          {
+            "id": 5,
+            "text": "<p>Absolute paths always start out with the root directory <code>/</code>. Then we specify the sub-directories we want to descend into, <code>/home/bob/Documents/Invoice.pdf</code> is an example of such a path. In this case, first home, then <code>bob</code>, then <code>Documents</code>. We can see the sub-directory names are separated by a <code>/</code> and we finally get to the file we want to access i.e <code>Invoice.pdf</code>. An absolute path can end with the name of a file or a directory.</p>",
+            "type": "mc",
+            "answers": [
+              { "text": "/home/bob/Documents", "correct": true },
+              { "text": "home/bob/Documents", "correct": false },
+              { "text": "/home/bob/*", "correct": false }
+            ],
+            "points": 1
+          },
+          {
+            "id": 6,
+            "text": "Create a directory named lfcs under /home/bob directory.",
+            "type": "check",
+            "pre": "useradd -m -d /home/bob bob",
+            "check": "if [ -d /home/bob/lfcs ]; then echo 0; else echo 1; fi;",
+            "post": "mkdir /home/bob/lfcs",
+            "points": 2
+          },
+          {
+            "id": 7,
+            "text": "Create a blank file named lfcs.txt under /home/bob/lfcs directory.",
+            "type": "check",
+            "check": "if [ -f /home/bob/lfcs/lfcs.txt ]; then echo 0; else echo 1; fi;",
+            "post": "touch /home/bob/lfcs/lfcs.txt",
+            "points": 2
+          },
+          {
+            "id": 8,
+            "text": "<p>Copy <code>/tmp/Invoice</code> directory (including all its contents) to <code>/home/bob</code> directory.</p>",
+            "type": "check",
+            "pre": "mkdir /tmp/Invoice; touch /tmp/Invoice/myfile.txt",
+            "check": "diff -rq /home/bob/Invoice /tmp/Invoice; echo $?;",
+            "points": 2
+          },
+          {
+            "id": 9,
+            "text": "<p>Copy <code>/home/bob/myfile.txt</code> file to <code>/home/bob/data/</code> directory, make sure to preserve its attributes.</p>",
+            "type": "check",
+            "pre": "touch /home/bob/myfile.txt; mkdir /home/bob/data;",
+            "check": "if [ ! -f /home/bob/data/myfile.txt ]; then echo 1; fi; find /home/bob/data -name myfile.txt -newer /home/bob/myfile.txt | wc -l",
+            "points": 2
+          },
+          {
+            "id": 10,
+            "text": "<p>Copy the <code>/home/bob/lfcs</code> directory (including all its content) into <code>/home/bob/old-data/</code> directory.</p>",
+            "type": "check",
+            "check": "diff -rq /home/bob/lfcs /home/bob/old-data/lfcs; echo $?;",
+            "points": 2
+          },
+          {
+            "id": 11,
+            "text": "<p>Delete <code>/home/bob/lfcs/lfcs.txt</code> file.</p>",
+            "type": "check",
+            "check": "if [ -f /home/bob/lfcs/lfcs.txt ]; then echo 1; else echo 0; fi;"
+          },
+          {
+            "id": 12,
+            "text": "<p>Move all content of <code>/home/bob/lfcs</code> directory to <code>/home/bob/new-data/</code> directory.</p>",
+            "type": "check",
+            "check": "if [ -d /home/bob/lfcs ]; then echo 1; else echo 0; fi; "
+          },
+          {
+            "id": 13,
+            "text": "<p>Delete directory  <code>/home/bob/lfcs</code> .</p>",
+            "type": "check",
+            "check": "if [ -d /home/bob/lfcs ]; then echo 1; else echo 0; fi; "
+          }
+    ]
+}
