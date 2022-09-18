@@ -64,8 +64,13 @@ function loadQuestion(questionNum) {
   //numPreguntas.innerHTML = correct + "/" + questions.length;
 
   result.innerHTML = "";
+
   if (currentQuestion === questions.length) {
+    console.log("entra dentrol ultima pregunta")
+    console.log("cQuest: " + currentQuestion);
+    console.log("QLength: " + questions.length);
     //startBtn.classList.remove("hide");
+    
     nextBtn.classList.add("hide");
     questionElement.classList.add("hide");
     answersContainer.classList.add("hide");
@@ -73,10 +78,10 @@ function loadQuestion(questionNum) {
     correct = 0;
     //correctCount.innerHTML = `Correct: ${correct}/${questions.length}`;
     $('.item').remove();
-    arrEncerts = new Array(questions.length);
     currentQuestion = 0;
     var sobre100 = Math.round(100*numPoints/numTotalPoints)
     numPreguntas.innerHTML ="Puntuació final: " + sobre100 + "/" + 100;
+    updateDB(arrEncerts, numPoints)
     socket.emit('stop', containerId);
   } else {
     while (answersContainer.firstChild) {
@@ -212,7 +217,7 @@ function checkAnswer(e, myCallback) {
               progressBar.title = numPoints + " punts d'un total de " + numTotalPoints
               textProgressBar.innerHTML = numPoints + "/" + numTotalPoints
               console.log("Punts actuals: " + puntsActuals);
-              arrEncerts[(answersContainer.children[0].id)-1] = 1;
+              arrEncerts[(answersContainer.children[0].id)-1] = puntsActuals;
             }
             else{
               arrEncerts[(answersContainer.children[0].id)-1] = 0;
@@ -276,8 +281,10 @@ function checkAnswer(e, myCallback) {
           document.getElementById("item-" + (answersContainer.children[0].id-1)).style.backgroundColor = "red";
         }
       });
-      console.log(e);
-      e.target.style.visibility = 'hidden';
+      if (e){
+        console.log(e);
+        e.target.style.visibility = 'hidden';
+      }
       break;
 
     default:

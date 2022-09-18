@@ -158,6 +158,7 @@ router.get('/', ensureAuth, async (req, res, next) => {
         containerId: containerId,
         cli: cliConsola,
         timerTask: timerTask,
+        minutes: quizFile.quizData.minutes,
         numQuizzes: mapNumQuizzes.get(file.replace(".json", "")),
         maxNota: mapMaxNota.get(file.replace(".json", "")),
         sumTotalPuntsQuiz: sumTotalPuntsQuiz,
@@ -175,11 +176,9 @@ const returnLaboratorisRouter = (io) => {
     socket.on('stop', (containerId) => {
       const container = docker.getContainer(containerId);
       container.stop(null, (err, data) => {
-        //console.log("Aturem contenidori " + container.id);
         socket.emit('end', 'stoppedContainer' + container.id);
         delete userJobs[container.id];
       });
-
     });
 
     socket.on('pull', (imageName, slug, userId, displayName, group) => {

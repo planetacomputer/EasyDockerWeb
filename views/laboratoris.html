@@ -8,9 +8,6 @@
             }
             function countdown(element, hours, minutes, seconds) {
                 // Fetch the display element
-                console.log(hours);
-                console.log(minutes);
-                console.log(seconds);
                 window[element] = document.getElementById('id' + element);
                 // Set the timer
                 var x = setInterval(function () {
@@ -103,7 +100,7 @@
                  </a>
                  -->
                                         <a id="stop<%= quizzes[i].containerId %>" class="btn btn-warning btn-xs"
-                                            onclick="stopContainer('<%= quizzes[i].containerId %>')"
+                                            onclick="stopContainer('<%= quizzes[i].containerId %>', '<%= quizzes[i].title %>', '<%= quizzes[i].questions %>', '<%= quizzes[i].minutes %>')"
                                             data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting...">
                                             <span class="glyphicon glyphicon-stop"></span>
                                         </a>
@@ -125,7 +122,7 @@
                          </a>
                          -->
 
-                                                <a onclick="downloadImage('<%= quizzes[i].image %>', '<%= quizzes[i].slug %>')"
+                                                <a onclick="downloadImage('<%= quizzes[i].image %>', '<%= quizzes[i].slug %>', '<%= quizzes[i].title %>', '<%= quizzes[i].questions %>', '<%= quizzes[i].minutes %>')"
                                                     data-toggle="tooltip" title="Hooray!" class="btn btn-success btn-xs"
                                                     data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
                                                     href="#">
@@ -133,7 +130,7 @@
                                                 </a>
                                                 <% } else if(quizzes[i].active==1  && !(Number(quizzes[i].numQuizzes) >= Number(quizzes[i].numMaxIntents))) { %>
                                                     <% if (userinfo.role == 'admin') { %>
-                                                    <a onclick="downloadImage('<%= quizzes[i].image %>', '<%= quizzes[i].slug %>')"
+                                                    <a onclick="downloadImage('<%= quizzes[i].image %>', '<%= quizzes[i].slug %>', '<%= quizzes[i].title %>', '<%= quizzes[i].questions %>', '<%= quizzes[i].minutes %>')"
                                                         class="btn btn-info btn-xs"
                                                         data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
                                                         href="#">
@@ -176,7 +173,7 @@
     </div>
     <%- include ('include/footer.html') -%>
         <script>
-            function restart(containerId, imagesName, slug) {
+            function restart(containerId, imagesName) {
                 console.log("init");
                 var host = window.location.origin;
                 var socket = io.connect(host);
@@ -194,7 +191,7 @@
                 });
             }
 
-            function downloadImage(imagesName, slug) {
+            function downloadImage(imagesName, slug, title, numQuestions, numMinutes) {
                 console.log(slug);
                 $('.btn-success').addClass("disabled");
                 var host = window.location.origin;
@@ -204,39 +201,45 @@
                     console.log(data);
                 });
 
-                socket.on('end', function (message) {
-                    alert(message);
+                socket.on('end', function () {
+                    alert("Creant el laboratori " + title);
                     socket.disconnect();
-                    location.reload();
+                    location.reload(true);
                 });
-                socket.on('end', (status) => {
-                    alert(status);
-                    location.reload();
+                socket.on('end', () => {
+                    message = "Aquest lab consta de " + numQuestions + " reptes";
+                    if (numMinutes !== "" && !isNaN(parseInt(numMinutes))){
+                        message +=   " i un temps màxim de " + numMinutes + " minuts"
+                    } 
+                    alert(message);
+                    location.reload(true);
                 });
             }
 
-            function stopContainer(containerId) {
+            function stopContainer(containerId, title, numQuestions, numMinutes) {
                 console.log("stopContainer");
                 var host = window.location.origin;
                 var socket = io.connect(host);
                 socket.emit('stop', containerId);
 
                 socket.on('end', function (message) {
-                    alert(message);
+                    alert("S'està aturant el lab " +  title);
                     socket.disconnect();
                     location.reload(true);
                 });
                 socket.on('end', (status) => {
-                    alert(status);
+                    message = "Aquest lab ha constat de " + numQuestions + " reptes";
+                    if (numMinutes !== "" && !isNaN(parseInt(numMinutes))){
+                        message +=   " i un temps màxim de " + numMinutes + " minuts"
+                    } 
+                    alert(message);
                     location.reload(true);
                 });
             }
 
             $(document).ready(function () {
-                //alert($('a[id^="stop"]').length);
                 $('[data-toggle="tooltip"]').tooltip();
                 if ($('a[id^="stop"]').length != 0) {
-                    //alert($('.btn-success').length)
                     $('.btn-success').addClass("disabled");
                 }
             });
