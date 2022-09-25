@@ -1,5 +1,8 @@
 const express = require('express');
 const path = require('path');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
 require('dotenv').config({path: __dirname + '/.env'});
 const bodyParser = require('body-parser');
 const app = express();
@@ -19,6 +22,22 @@ require('./config/passport')(passport)
 //const {checkUser} = require('./middlewares/security');
 const { auth } = require('./middlewares/auth')
 
+// Listen both http & https ports
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer({
+  key: fs.readFileSync(__dirname + `/certs/key.pem`),
+  cert: fs.readFileSync(__dirname + `/certs/cert.pem`),
+}, app);
+
+// httpServer.listen(8080, () => {
+//     console.log('HTTP Server running on port 80');
+// });
+
+httpsServer.listen(443, () => {
+    console.log('HTTPS Server running on port 443');
+});
+
+
 app.use(
     session({
       secret: 'keyboard cat',
@@ -31,7 +50,7 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
-const io = require('socket.io')();
+const io = require('socket.io')(httpsServer);
 const favicon = require('serve-favicon');
 app.io = io;
 
